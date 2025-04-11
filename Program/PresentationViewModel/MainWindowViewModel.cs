@@ -44,6 +44,12 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
 
     #endregion public API
 
+    public void InitializeObserver()
+    {
+        if (Disposed)
+            throw new ObjectDisposedException(nameof(MainWindowViewModel));
+        Observer = ModelLayer.Subscribe<ModelIBall>(x => Balls.Add(x));
+    }
     #region IDisposable
 
     protected virtual void Dispose(bool disposing)
