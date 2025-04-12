@@ -28,6 +28,11 @@ namespace TP.ConcurrentProgramming.PresentationView
                 MessageBox.Show($"Wybrano: {value}");
                 ballsValues = int.Parse(value);
             }
+            else
+            {
+                MessageBox.Show("Niepoprawna wartosc liczba wyswietlonych kulek bedzie = 0");
+                ballsValues = 0;
+            }
         }
 
         private void Button_Click_1(object sender, RoutedEventArgs e)

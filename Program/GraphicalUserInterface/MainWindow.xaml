@@ -5,11 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:TP.ConcurrentProgramming.Presentation.ViewModel;assembly=TP.ConcurrentProgramming.PresentationViewModel"
         mc:Ignorable="d"
-        Title="Presentation layer targeting reactive behaviour" Height="auto" Width="auto">
+        Title="Game board" Height="auto" Width="auto">
     <Window.DataContext>
         <vm:MainWindowViewModel />
     </Window.DataContext>
-    <Grid>
+    <Viewbox>
+        <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -41,5 +42,5 @@
         </Border>
         <Button Height="30" Width="100" Grid.Row="0" Margin="290,0,10,0" Content="Stop&#xA;" Click="Button_Click"/>
     </Grid>
-
+    </Viewbox>
 </Window>
