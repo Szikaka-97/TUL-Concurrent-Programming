@@ -48,7 +48,10 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 
       layerBelow.Start(numberOfBalls, (startingPosition, databall) => upperLayerBallCreationHandler(new Position(startingPosition.x, startingPosition.x), new Ball(databall)), databall => upperLayerBallRemovalHandler(new Ball(databall)));
     }
-
+    public override void Stop()
+    {
+      layerBelow.EndSimulation();
+    }
     public override void AddBall()
     {
       layerBelow.AddBall();

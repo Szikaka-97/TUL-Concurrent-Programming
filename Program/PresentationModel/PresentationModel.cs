@@ -25,7 +25,7 @@ namespace TP.ConcurrentProgramming.Presentation.Model
 
     internal ModelImplementation(UnderneathLayerAPI underneathLayer)
     {
-      layerBellow = underneathLayer == null ? UnderneathLayerAPI.GetBusinessLogicLayer() : underneathLayer;
+      layerBelow = underneathLayer == null ? UnderneathLayerAPI.GetBusinessLogicLayer() : underneathLayer;
       eventObservable = Observable.FromEventPattern<BallChangeEventArgs>(this, "BallChanged");
     }
 
@@ -35,7 +35,7 @@ namespace TP.ConcurrentProgramming.Presentation.Model
     {
       if (Disposed)
         throw new ObjectDisposedException(nameof(Model));
-      layerBellow.Dispose();
+      layerBelow.Dispose();
       Disposed = true;
     }
 
@@ -46,7 +46,12 @@ namespace TP.ConcurrentProgramming.Presentation.Model
 
     public override void Start(int numberOfBalls)
     {
-      layerBellow.Start(numberOfBalls, BallAdditionHandler, (ball) => { });
+      layerBelow.Start(numberOfBalls, BallAdditionHandler, (ball) => { });
+    }
+
+    public override void Stop()
+    {
+      layerBelow.Stop();
     }
 
     #endregion ModelAbstractApi
@@ -61,11 +66,11 @@ namespace TP.ConcurrentProgramming.Presentation.Model
 
     private bool Disposed = false;
     private readonly IObservable<EventPattern<BallChangeEventArgs>> eventObservable = null;
-    private readonly UnderneathLayerAPI layerBellow = null;
+    private readonly UnderneathLayerAPI layerBelow = null;
 
     private void BallAdditionHandler(BusinessLogic.IPosition position, BusinessLogic.IBall ball)
     {
-      ModelBall newBall = new ModelBall(position.x, position.y, ball) { Diameter = 20.0 };
+      ModelBall newBall = new ModelBall(position.x, position.y, ball) { Diameter = 5 };
       BallChanged.Invoke(this, new BallChangeEventArgs() { Ball = newBall });
     }
 
@@ -82,7 +87,7 @@ namespace TP.ConcurrentProgramming.Presentation.Model
     [Conditional("DEBUG")]
     internal void CheckUnderneathLayerAPI(Action<UnderneathLayerAPI> returnNumberOfBalls)
     {
-      returnNumberOfBalls(layerBellow);
+      returnNumberOfBalls(layerBelow);
     }
 
     [Conditional("DEBUG")]

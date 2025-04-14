@@ -19,7 +19,7 @@ namespace TP.ConcurrentProgramming.Data
 
     public DataImplementation()
     {
-      MoveTimer = new Timer(Move, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(100));
+      MoveTimer = new Timer(Move, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(50));
     }
 
     #endregion ctor
@@ -40,11 +40,15 @@ namespace TP.ConcurrentProgramming.Data
 
       for (int i = 0; i < numberOfBalls; i++)
       {
-        Vector startingPosition = new(RandomGenerator.Next(100, 400 - 100), RandomGenerator.Next(100, 400 - 100));
-        Ball newBall = new(startingPosition, startingPosition);
-        ballCreationHandler(startingPosition, newBall);
-        BallsList.Add(newBall);
+        AddBall();
       }
+    }
+
+    public override void EndSimulation()
+    {
+      if (Disposed)
+        throw new ObjectDisposedException(nameof(DataImplementation));
+      BallsList.Clear();
     }
 
     public override void AddBall()
@@ -52,7 +56,7 @@ namespace TP.ConcurrentProgramming.Data
       if (Disposed)
         throw new ObjectDisposedException(nameof(DataImplementation));
 
-      Vector startingPosition = new(RandomGenerator.Next(100, 400 - 100), RandomGenerator.Next(100, 400 - 100));
+      Vector startingPosition = new(RandomGenerator.Next(10, TableSize - 10), RandomGenerator.Next(10, TableSize - 10));
       Ball newBall = new(startingPosition, startingPosition);
       BallCreationHandler(startingPosition, newBall);
       BallsList.Add(newBall);
@@ -107,11 +111,40 @@ namespace TP.ConcurrentProgramming.Data
     private List<Ball> BallsList = [];
     private Action<IVector, IBall> BallCreationHandler;
     private Action<IBall> BallRemovalHandler;
+    private int TableSize = 100;
 
     private void Move(object? x)
     {
       foreach (Ball item in BallsList)
-        item.Move(new Vector((RandomGenerator.NextDouble() - 0.5) * 10, (RandomGenerator.NextDouble() - 0.5) * 10));
+      {
+        double bearing = RandomGenerator.NextDouble() * 2 * Math.PI;
+        double dist = RandomGenerator.NextDouble();
+
+        var movement = new Vector(
+          Math.Cos(bearing) * dist,
+          Math.Sin(bearing) * dist
+        );
+
+        movement = new Vector(
+          Math.Clamp(movement.x, item.Radius - item.Position.x , TableSize - item.Position.x - item.Radius),
+          Math.Clamp(movement.y, item.Radius - item.Position.y, TableSize - item.Position.y - item.Radius)
+        );
+        
+        item.Move(movement);
+      }
+    }
+
+    private bool IsInBounds(Vector pos, double radius)
+    {
+      return (
+        pos.x - radius >= 0
+        &&
+        pos.y - radius >= 0
+        &&
+        pos.x + radius <= TableSize
+        &&
+        pos.y + radius <= TableSize
+      );
     }
 
     #endregion private

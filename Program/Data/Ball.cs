@@ -14,10 +14,11 @@ namespace TP.ConcurrentProgramming.Data
   {
     #region ctor
 
-    internal Ball(Vector initialPosition, Vector initialVelocity)
+    internal Ball(Vector initialPosition, Vector initialVelocity, double initialDiameter = 10)
     {
-      Position = initialPosition;
+      PositionBackingField = initialPosition;
       Velocity = initialVelocity;
+      DiameterBackingField = initialDiameter;
     }
 
     #endregion ctor
@@ -34,21 +35,37 @@ namespace TP.ConcurrentProgramming.Data
       init => DiameterBackingField = value;
     }
 
+    public double Radius
+    {
+      get => DiameterBackingField / 2;
+      init => DiameterBackingField = value * 2;
+    }
+
     #endregion IBall
+
+    #region internal
+
+    internal Vector Position
+    {
+      get => PositionBackingField;
+    }
+
+    #endregion internal
 
     #region private
 
-    private Vector Position;
+    private Vector PositionBackingField;
     private double DiameterBackingField;
 
     private void RaiseNewPositionChangeNotification()
     {
-      NewPositionNotification?.Invoke(this, Position);
+      NewPositionNotification?.Invoke(this, PositionBackingField);
     }
 
     internal void Move(Vector delta)
     {
-      Position = new Vector(Position.x + delta.x, Position.y + delta.y);
+      PositionBackingField = PositionBackingField + delta;
+
       RaiseNewPositionChangeNotification();
     }
 

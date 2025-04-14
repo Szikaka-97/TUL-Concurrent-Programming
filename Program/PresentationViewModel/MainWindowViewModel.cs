@@ -40,16 +40,34 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
       Observer.Dispose();
     }
 
-    public ObservableCollection<ModelIBall> Balls { get; } = new ObservableCollection<ModelIBall>();
+    public void Stop()
+    {
+      if (Disposed)
+        throw new ObjectDisposedException(nameof(MainWindowViewModel));
 
-    #endregion public API
+      this.Balls.Clear();
+    }
+
+    public void AddBall()
+    {
+
+    }
+
+    public void RemoveBall()
+    {
+
+    }
+
+    public ObservableCollection<ModelIBall> Balls { get; } = new ObservableCollection<ModelIBall>();
 
     public void InitializeObserver()
     {
-        if (Disposed)
-            throw new ObjectDisposedException(nameof(MainWindowViewModel));
-        Observer = ModelLayer.Subscribe<ModelIBall>(x => Balls.Add(x));
+      if (Disposed)
+        throw new ObjectDisposedException(nameof(MainWindowViewModel));
+      Observer = ModelLayer.Subscribe<ModelIBall>(x => Balls.Add(x));
     }
+    #endregion public API
+
     #region IDisposable
 
     protected virtual void Dispose(bool disposing)

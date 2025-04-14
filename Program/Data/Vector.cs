@@ -37,5 +37,25 @@ namespace TP.ConcurrentProgramming.Data
       x = XComponent;
       y = YComponent;
     }
+
+    public static Vector operator +(Vector a, Vector b)
+    {
+      return new Vector(a.x + b.x, a.y + b.y);
+    }
+
+    public static Vector operator -(Vector a, Vector b)
+    {
+      return new Vector(a.x - b.x, a.y - b.y);
+    }
+
+    public static Vector operator *(Vector vec, float scale)
+    {
+      return new Vector(vec.x * scale, vec.y * scale);
+    }
+
+    public static Vector operator /(Vector vec, float scale)
+    {
+      return new Vector(vec.x / scale, vec.y / scale);
+    }
   }
 }

@@ -25,6 +25,7 @@ namespace TP.ConcurrentProgramming.Data
 
     public abstract void Start(int numberOfBalls, Action<IVector, IBall> ballCreationHandler, Action<IBall> ballRemovalHandler);
 
+    public abstract void EndSimulation();
     public abstract void AddBall();
     public abstract void RemoveBall();
 

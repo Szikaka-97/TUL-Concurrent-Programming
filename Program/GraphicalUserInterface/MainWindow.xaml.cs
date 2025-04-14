@@ -9,7 +9,9 @@
 
 using Newtonsoft.Json.Linq;
 using System;
+using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Input;
 using TP.ConcurrentProgramming.Presentation.ViewModel;
 
 namespace TP.ConcurrentProgramming.PresentationView
@@ -19,48 +21,71 @@ namespace TP.ConcurrentProgramming.PresentationView
     /// </summary>
     public partial class MainWindow : Window
     {
-        private int ballsValues = 0;
-
-        private void BallSelector_Changed(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        private void ValidateNumberInTextbox(object sender, TextCompositionEventArgs e)
         {
-            if (BallSelector.SelectedItem is string value && value != "Liczba kulek")
-            {
-                MessageBox.Show($"Wybrano: {value}");
-                ballsValues = int.Parse(value);
-            }
-            else
-            {
-                MessageBox.Show("Niepoprawna wartosc liczba wyswietlonych kulek bedzie = 0");
-                ballsValues = 0;
-            }
+            Regex regex = new Regex("[^0-9]+");
+            e.Handled = regex.IsMatch(e.Text);
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
+        private void StartButtonClick(object sender, RoutedEventArgs e)
         {
-            if (ballsValues != 0)
+            if (Int32.TryParse(BallCountInputBox.Text, out int ballsCount) && ballsCount > 0)
             {
                 if (DataContext is MainWindowViewModel viewModel)
                 {
+                    BallCountInputBox.Focusable = false;
+
                     viewModel.InitializeObserver();
-                    viewModel.Start(ballsValues);
+                    viewModel.Start(ballsCount);
                 }
-                BallSelector.IsEnabled = false;  
             }
             else
             {
-                MessageBox.Show("Nic sie nie wyswietli gdyz nie wybrano wartosci");
+                MessageBox.Show("Please pick a non-zero number of balls");
             }
 
         }
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void StopButtonClick(object sender, RoutedEventArgs e)
         {
             if (DataContext is MainWindowViewModel viewModel)
             {
-                viewModel.Balls.Clear();
-                MessageBox.Show("Usunolem wszystkie kulki");
+                viewModel.Stop();
             }
-            BallSelector.IsEnabled = true;
+        }
 
+        private void AddBallButtonClick(object sender, RoutedEventArgs e)
+        {
+            if (Int32.TryParse(BallCountInputBox.Text, out int ballsCount))
+            {
+                BallCountInputBox.Text = (ballsCount + 1).ToString();
+            }
+            else
+            {
+                BallCountInputBox.Text = "1";
+            }
+
+            UpdateBallCountButtons(sender, e);
+        }
+        
+        private void RemoveBallButtonClick(object sender, RoutedEventArgs e)
+        {
+            if (Int32.TryParse(BallCountInputBox.Text, out int ballsCount) && ballsCount > 0)
+            {
+                BallCountInputBox.Text = (ballsCount - 1).ToString();
+            }
+            else
+            {
+                BallCountInputBox.Text = "0";
+            }
+
+            UpdateBallCountButtons(sender, e);
+        }
+
+        private void UpdateBallCountButtons(object sender, EventArgs e)
+        {
+            if (!Int32.TryParse(BallCountInputBox.Text, out int ballsCount)) return;
+
+            RemoveBallButton.IsEnabled = ballsCount > 0;
         }
 
         public MainWindow()
@@ -69,11 +94,6 @@ namespace TP.ConcurrentProgramming.PresentationView
             MainWindowViewModel viewModel = (MainWindowViewModel)DataContext;
             double screenWidth = SystemParameters.PrimaryScreenWidth;
             double screenHeight = SystemParameters.PrimaryScreenHeight;
-            BallSelector.Items.Add("Liczba kulek");
-            for (int i = 1; i <= 20; i++)
-            {
-                BallSelector.Items.Add(i.ToString());
-            }
         }
 
         /// <summary>
