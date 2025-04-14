@@ -111,7 +111,7 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel.Test
 
       public ModelSimulatorFixture()
       {
-        eventObservable = Observable.FromEventPattern<BallChaneEventArgs>(this, "BallChanged");
+        eventObservable = Observable.FromEventPattern<BallChangeEventArgs>(this, "BallChanged");
       }
 
       #endregion ctor
@@ -128,7 +128,7 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel.Test
         for (int i = 0; i < numberOfBalls; i++)
         {
           ModelBall newBall = new ModelBall(0, 0) { };
-          BallChanged?.Invoke(this, new BallChaneEventArgs() { Ball = newBall });
+          BallChanged?.Invoke(this, new BallChangeEventArgs() { Ball = newBall });
         }
       }
 
@@ -141,13 +141,13 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel.Test
 
       #region API
 
-      public event EventHandler<BallChaneEventArgs> BallChanged;
+      public event EventHandler<BallChangeEventArgs> BallChanged;
 
       #endregion API
 
       #region private
 
-      private IObservable<EventPattern<BallChaneEventArgs>>? eventObservable = null;
+      private IObservable<EventPattern<BallChangeEventArgs>>? eventObservable = null;
 
       private class ModelBall : ModelIBall
       {

@@ -22,7 +22,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 
     internal BusinessLogicImplementation(UnderneathLayerAPI? underneathLayer)
     {
-      layerBellow = underneathLayer == null ? UnderneathLayerAPI.GetDataLayer() : underneathLayer;
+      layerBelow = underneathLayer == null ? UnderneathLayerAPI.GetDataLayer() : underneathLayer;
     }
 
     #endregion ctor
@@ -33,17 +33,29 @@ namespace TP.ConcurrentProgramming.BusinessLogic
     {
       if (Disposed)
         throw new ObjectDisposedException(nameof(BusinessLogicImplementation));
-      layerBellow.Dispose();
+      layerBelow.Dispose();
       Disposed = true;
     }
 
-    public override void Start(int numberOfBalls, Action<IPosition, IBall> upperLayerHandler)
+    public override void Start(int numberOfBalls, Action<IPosition, IBall> upperLayerBallCreationHandler, Action<IBall> upperLayerBallRemovalHandler)
     {
       if (Disposed)
         throw new ObjectDisposedException(nameof(BusinessLogicImplementation));
-      if (upperLayerHandler == null)
-        throw new ArgumentNullException(nameof(upperLayerHandler));
-      layerBellow.Start(numberOfBalls, (startingPosition, databall) => upperLayerHandler(new Position(startingPosition.x, startingPosition.x), new Ball(databall)));
+      if (upperLayerBallCreationHandler == null)
+        throw new ArgumentNullException(nameof(upperLayerBallCreationHandler));
+
+      ballCreationHandler = upperLayerBallCreationHandler;
+
+      layerBelow.Start(numberOfBalls, (startingPosition, databall) => upperLayerBallCreationHandler(new Position(startingPosition.x, startingPosition.x), new Ball(databall)), databall => upperLayerBallRemovalHandler(new Ball(databall)));
+    }
+
+    public override void AddBall()
+    {
+      layerBelow.AddBall();
+    }
+    public override void RemoveBall()
+    {
+      layerBelow.RemoveBall();
     }
 
     #endregion BusinessLogicAbstractAPI
@@ -52,7 +64,9 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 
     private bool Disposed = false;
 
-    private readonly UnderneathLayerAPI layerBellow;
+    private readonly UnderneathLayerAPI layerBelow;
+
+    private Action<IPosition, IBall> ballCreationHandler;
 
     #endregion private
 

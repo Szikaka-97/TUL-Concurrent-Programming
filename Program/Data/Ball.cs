@@ -28,11 +28,18 @@ namespace TP.ConcurrentProgramming.Data
 
     public IVector Velocity { get; set; }
 
+    public double Diameter
+    {
+      get => DiameterBackingField;
+      init => DiameterBackingField = value;
+    }
+
     #endregion IBall
 
     #region private
 
     private Vector Position;
+    private double DiameterBackingField;
 
     private void RaiseNewPositionChangeNotification()
     {

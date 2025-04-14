@@ -18,7 +18,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
     [TestMethod]
     public void ConstructorTestMethod()
     {
-      using (BusinessLogicImplementation newInstance = new(new DataLayerConstructorFixcure()))
+      using (BusinessLogicImplementation newInstance = new(new DataLayerConstructorFixture()))
       {
         bool newInstanceDisposed = true;
         newInstance.CheckObjectDisposed(x => newInstanceDisposed = x);
@@ -29,7 +29,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
     [TestMethod]
     public void DisposeTestMethod()
     {
-      DataLayerDisposeFixcure dataLayerFixcure = new DataLayerDisposeFixcure();
+      DataLayerDisposeFixture dataLayerFixcure = new DataLayerDisposeFixture();
       BusinessLogicImplementation newInstance = new(dataLayerFixcure);
       Assert.IsFalse(dataLayerFixcure.Disposed);
       bool newInstanceDisposed = true;
@@ -39,7 +39,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
       newInstance.CheckObjectDisposed(x => newInstanceDisposed = x);
       Assert.IsTrue(newInstanceDisposed);
       Assert.ThrowsException<ObjectDisposedException>(() => newInstance.Dispose());
-      Assert.ThrowsException<ObjectDisposedException>(() => newInstance.Start(0, (position, ball) => { }));
+      Assert.ThrowsException<ObjectDisposedException>(() => newInstance.Start(0, (position, ball) => { }, ball => { }));
       Assert.IsTrue(dataLayerFixcure.Disposed);
     }
 
@@ -53,7 +53,9 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
         int numberOfBalls2Create = 10;
         newInstance.Start(
           numberOfBalls2Create,
-          (startingPosition, ball) => { called++; Assert.IsNotNull(startingPosition); Assert.IsNotNull(ball); });
+          (startingPosition, ball) => { called++; Assert.IsNotNull(startingPosition); Assert.IsNotNull(ball); },
+          ball => { }
+        );
         Assert.AreEqual<int>(1, called);
         Assert.IsTrue(dataLayerFixcure.StartCalled);
         Assert.AreEqual<int>(numberOfBalls2Create, dataLayerFixcure.NumberOfBallseCreated);
@@ -62,27 +64,47 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
 
     #region testing instrumentation
 
-    private class DataLayerConstructorFixcure : Data.DataAbstractAPI
+    private class DataLayerConstructorFixture : Data.DataAbstractAPI
     {
+      public override void AddBall()
+      {
+        throw new NotImplementedException();
+      }
+
       public override void Dispose()
       { }
 
-      public override void Start(int numberOfBalls, Action<IVector, Data.IBall> upperLayerHandler)
+      public override void RemoveBall()
+      {
+        throw new NotImplementedException();
+      }
+
+      public override void Start(int numberOfBalls, Action<IVector, Data.IBall> ballCreationHandler, Action<Data.IBall> ballRemovalHandler)
       {
         throw new NotImplementedException();
       }
     }
 
-    private class DataLayerDisposeFixcure : Data.DataAbstractAPI
+    private class DataLayerDisposeFixture : Data.DataAbstractAPI
     {
       internal bool Disposed = false;
+
+      public override void AddBall()
+      {
+        throw new NotImplementedException();
+      }
 
       public override void Dispose()
       {
         Disposed = true;
       }
 
-      public override void Start(int numberOfBalls, Action<IVector, Data.IBall> upperLayerHandler)
+      public override void RemoveBall()
+      {
+        throw new NotImplementedException();
+      }
+
+      public override void Start(int numberOfBalls, Action<IVector, Data.IBall> ballCreationHandler, Action<Data.IBall> ballRemovalHandler)
       {
         throw new NotImplementedException();
       }
@@ -96,11 +118,21 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
       public override void Dispose()
       { }
 
-      public override void Start(int numberOfBalls, Action<IVector, Data.IBall> upperLayerHandler)
+      public override void Start(int numberOfBalls, Action<IVector, Data.IBall> ballCreationHandler, Action<Data.IBall> ballRemovalHandler)
       {
         StartCalled = true;
         NumberOfBallseCreated = numberOfBalls;
-        upperLayerHandler(new DataVectorFixture(), new DataBallFixture());
+        ballCreationHandler(new DataVectorFixture(), new DataBallFixture());
+      }
+
+      public override void AddBall()
+      {
+        throw new NotImplementedException();
+      }
+
+      public override void RemoveBall()
+      {
+        throw new NotImplementedException();
       }
 
       private record DataVectorFixture : Data.IVector
@@ -112,6 +144,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
       private class DataBallFixture : Data.IBall
       {
         public IVector Velocity { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public double Diameter { get => throw new NotImplementedException(); init => throw new NotImplementedException(); }
 
         public event EventHandler<IVector>? NewPositionNotification = null;
       }

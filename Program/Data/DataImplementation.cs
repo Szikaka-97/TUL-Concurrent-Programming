@@ -26,20 +26,47 @@ namespace TP.ConcurrentProgramming.Data
 
     #region DataAbstractAPI
 
-    public override void Start(int numberOfBalls, Action<IVector, IBall> upperLayerHandler)
+    public override void Start(int numberOfBalls, Action<IVector, IBall> ballCreationHandler, Action<IBall> ballRemovalHandler)
     {
       if (Disposed)
         throw new ObjectDisposedException(nameof(DataImplementation));
-      if (upperLayerHandler == null)
-        throw new ArgumentNullException(nameof(upperLayerHandler));
-      Random random = new Random();
+      if (ballCreationHandler == null)
+        throw new ArgumentNullException(nameof(ballCreationHandler));
+      if (ballRemovalHandler == null)
+        throw new ArgumentNullException(nameof(ballRemovalHandler));
+
+      BallCreationHandler = ballCreationHandler;
+      BallRemovalHandler = ballRemovalHandler;
+
       for (int i = 0; i < numberOfBalls; i++)
       {
-        Vector startingPosition = new(random.Next(100, 400 - 100), random.Next(100, 400 - 100));
+        Vector startingPosition = new(RandomGenerator.Next(100, 400 - 100), RandomGenerator.Next(100, 400 - 100));
         Ball newBall = new(startingPosition, startingPosition);
-        upperLayerHandler(startingPosition, newBall);
+        ballCreationHandler(startingPosition, newBall);
         BallsList.Add(newBall);
       }
+    }
+
+    public override void AddBall()
+    {
+      if (Disposed)
+        throw new ObjectDisposedException(nameof(DataImplementation));
+
+      Vector startingPosition = new(RandomGenerator.Next(100, 400 - 100), RandomGenerator.Next(100, 400 - 100));
+      Ball newBall = new(startingPosition, startingPosition);
+      BallCreationHandler(startingPosition, newBall);
+      BallsList.Add(newBall);
+    }
+
+    public override void RemoveBall()
+    {
+      if (Disposed)
+        throw new ObjectDisposedException(nameof(DataImplementation));
+
+      IBall removed = BallsList.Last();
+      BallsList.RemoveAt(BallsList.Count - 1);
+
+      BallRemovalHandler(removed);
     }
 
     #endregion DataAbstractAPI
@@ -78,6 +105,8 @@ namespace TP.ConcurrentProgramming.Data
     private readonly Timer MoveTimer;
     private Random RandomGenerator = new();
     private List<Ball> BallsList = [];
+    private Action<IVector, IBall> BallCreationHandler;
+    private Action<IBall> BallRemovalHandler;
 
     private void Move(object? x)
     {
