@@ -37,6 +37,9 @@ namespace TP.ConcurrentProgramming.PresentationView
 
                     viewModel.InitializeObserver();
                     viewModel.Start(ballsCount);
+                    StartButton.IsEnabled = false;
+                    AddBallButton.IsEnabled = false;
+                    RemoveBallButton.IsEnabled = false;
                 }
             }
             else
@@ -45,11 +48,13 @@ namespace TP.ConcurrentProgramming.PresentationView
             }
 
         }
-        private void StopButtonClick(object sender, RoutedEventArgs e)
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (DataContext is MainWindowViewModel viewModel)
             {
                 viewModel.Stop();
+                viewModel.Dispose();
             }
         }
 
@@ -66,7 +71,6 @@ namespace TP.ConcurrentProgramming.PresentationView
             {
                 BallCountInputBox.Text = "1";
             }
-
             UpdateBallCountButtons(sender, e);
         }
         
@@ -80,7 +84,6 @@ namespace TP.ConcurrentProgramming.PresentationView
             {
                 BallCountInputBox.Text = "0";
             }
-
             UpdateBallCountButtons(sender, e);
         }
 

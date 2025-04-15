@@ -8,6 +8,7 @@
 //_____________________________________________________________________________________________________________________________________
 
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -54,11 +55,15 @@ namespace TP.ConcurrentProgramming.Presentation.Model
       layerBelow.Stop();
     }
 
-    #endregion ModelAbstractApi
 
-    #region API
 
-    public event EventHandler<BallChangeEventArgs> BallChanged;
+        #endregion ModelAbstractApi
+
+
+
+        #region API
+
+        public event EventHandler<BallChangeEventArgs> BallChanged;
 
     #endregion API
 
