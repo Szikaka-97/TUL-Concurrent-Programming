@@ -80,6 +80,11 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel.Test
         Started = numberOfBalls;
       }
 
+      public override void Stop()
+      {
+        throw new NotImplementedException();
+      }
+
       public override IDisposable Subscribe(IObserver<ModelIBall> observer)
       {
         Subscribed++;
@@ -135,6 +140,11 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel.Test
       public override void Dispose()
       {
         Disposed = true;
+      }
+
+      public override void Stop()
+      {
+        throw new NotImplementedException();
       }
 
       #endregion ModelAbstractApi

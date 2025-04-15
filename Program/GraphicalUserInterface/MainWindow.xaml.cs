@@ -58,7 +58,6 @@ namespace TP.ConcurrentProgramming.PresentationView
             }
         }
 
-
         private void AddBallButtonClick(object sender, RoutedEventArgs e)
         {
             if (Int32.TryParse(BallCountInputBox.Text, out int ballsCount))

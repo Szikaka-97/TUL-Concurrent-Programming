@@ -55,15 +55,11 @@ namespace TP.ConcurrentProgramming.Presentation.Model
       layerBelow.Stop();
     }
 
+    #endregion ModelAbstractApi
 
+    #region API
 
-        #endregion ModelAbstractApi
-
-
-
-        #region API
-
-        public event EventHandler<BallChangeEventArgs> BallChanged;
+    public event EventHandler<BallChangeEventArgs> BallChanged;
 
     #endregion API
 

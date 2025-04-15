@@ -74,6 +74,11 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
       public override void Dispose()
       { }
 
+      public override void EndSimulation()
+      {
+        throw new NotImplementedException();
+      }
+
       public override void RemoveBall()
       {
         throw new NotImplementedException();
@@ -97,6 +102,11 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
       public override void Dispose()
       {
         Disposed = true;
+      }
+
+      public override void EndSimulation()
+      {
+        throw new NotImplementedException();
       }
 
       public override void RemoveBall()
@@ -131,6 +141,11 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
       }
 
       public override void RemoveBall()
+      {
+        throw new NotImplementedException();
+      }
+
+      public override void EndSimulation()
       {
         throw new NotImplementedException();
       }

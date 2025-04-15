@@ -84,6 +84,11 @@ namespace TP.ConcurrentProgramming.Presentation.Model.Test
         Assert.IsNotNull(upperLayerBallRemovalHandler);
       }
 
+      public override void Stop()
+      {
+        throw new NotImplementedException();
+      }
+
       #endregion BusinessLogicAbstractAPI
     }
 
