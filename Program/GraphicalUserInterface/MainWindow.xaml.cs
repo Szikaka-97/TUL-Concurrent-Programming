@@ -23,8 +23,8 @@ namespace TP.ConcurrentProgramming.PresentationView
     {
         private void ValidateNumberInTextbox(object sender, TextCompositionEventArgs e)
         {
-            Regex regex = new Regex("[^0-9]+");
-            e.Handled = regex.IsMatch(e.Text);
+            Regex regex = new Regex("[^0-9]");
+            e.Handled = regex.IsMatch(e.Text) || (Int32.Parse(BallCountInputBox.Text + e.Text) > 20);
         }
 
         private void StartButtonClick(object sender, RoutedEventArgs e)
@@ -53,11 +53,14 @@ namespace TP.ConcurrentProgramming.PresentationView
             }
         }
 
+
         private void AddBallButtonClick(object sender, RoutedEventArgs e)
         {
             if (Int32.TryParse(BallCountInputBox.Text, out int ballsCount))
             {
-                BallCountInputBox.Text = (ballsCount + 1).ToString();
+                if (ballsCount < 20) {
+                    BallCountInputBox.Text = (ballsCount + 1).ToString();
+                }
             }
             else
             {
@@ -86,6 +89,7 @@ namespace TP.ConcurrentProgramming.PresentationView
             if (!Int32.TryParse(BallCountInputBox.Text, out int ballsCount)) return;
 
             RemoveBallButton.IsEnabled = ballsCount > 0;
+            AddBallButton.IsEnabled = ballsCount < 20;
         }
 
         public MainWindow()
