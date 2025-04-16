@@ -10,7 +10,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data", "Program\Data\Data.c
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataTest", "Program\DataTest\DataTest.csproj", "{78E71D33-8FB0-633F-7571-B682944464C4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PresentationView", "Program\GraphicalUserInterface\PresentationView.csproj", "{12669F98-07C9-3ABB-E415-0708D9F38FBE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PresentationView", "Program\PresentationView\PresentationView.csproj", "{12669F98-07C9-3ABB-E415-0708D9F38FBE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PresentationModel", "Program\PresentationModel\PresentationModel.csproj", "{7E7985B8-7FF6-57A1-EE27-A36D5D3C870C}"
 EndProject
