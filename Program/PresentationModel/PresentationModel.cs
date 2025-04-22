@@ -47,6 +47,8 @@ namespace TP.ConcurrentProgramming.Presentation.Model
 
     public override void Start(int numberOfBalls)
     {
+      _Running = true;
+
       layerBelow.Start(numberOfBalls, BallAdditionHandler, (ball) => { });
     }
 
@@ -54,6 +56,10 @@ namespace TP.ConcurrentProgramming.Presentation.Model
     {
       layerBelow.Stop();
     }
+
+    public override int CurrentBallsCount { get; set; }
+
+    public override bool Running => _Running;
 
     #endregion ModelAbstractApi
 
@@ -66,6 +72,7 @@ namespace TP.ConcurrentProgramming.Presentation.Model
     #region private
 
     private bool Disposed = false;
+    private bool _Running = false;
     private readonly IObservable<EventPattern<BallChangeEventArgs>> eventObservable = null;
     private readonly UnderneathLayerAPI layerBelow = null;
 

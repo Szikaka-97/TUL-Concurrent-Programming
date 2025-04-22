@@ -21,34 +21,6 @@ namespace TP.ConcurrentProgramming.PresentationView
     /// </summary>
     public partial class MainWindow : Window
     {
-        private void ValidateNumberInTextbox(object sender, TextCompositionEventArgs e)
-        {
-            Regex regex = new Regex("[^0-9]");
-            e.Handled = regex.IsMatch(e.Text) || (Int32.Parse(BallCountInputBox.Text + e.Text) > 20);
-        }
-
-        private void StartButtonClick(object sender, RoutedEventArgs e)
-        {
-            if (Int32.TryParse(BallCountInputBox.Text, out int ballsCount) && ballsCount > 0)
-            {
-                if (DataContext is MainWindowViewModel viewModel)
-                {
-                    BallCountInputBox.Focusable = false;
-
-                    viewModel.InitializeObserver();
-                    viewModel.Start(ballsCount);
-                    StartButton.IsEnabled = false;
-                    AddBallButton.IsEnabled = false;
-                    RemoveBallButton.IsEnabled = false;
-                }
-            }
-            else
-            {
-                MessageBox.Show("Please pick a non-zero number of balls");
-            }
-
-        }
-
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (DataContext is MainWindowViewModel viewModel)
@@ -56,42 +28,6 @@ namespace TP.ConcurrentProgramming.PresentationView
                 viewModel.Stop();
                 viewModel.Dispose();
             }
-        }
-
-        private void AddBallButtonClick(object sender, RoutedEventArgs e)
-        {
-            if (Int32.TryParse(BallCountInputBox.Text, out int ballsCount))
-            {
-                if (ballsCount < 20) {
-                    BallCountInputBox.Text = (ballsCount + 1).ToString();
-                }
-            }
-            else
-            {
-                BallCountInputBox.Text = "1";
-            }
-            UpdateBallCountButtons(sender, e);
-        }
-        
-        private void RemoveBallButtonClick(object sender, RoutedEventArgs e)
-        {
-            if (Int32.TryParse(BallCountInputBox.Text, out int ballsCount) && ballsCount > 0)
-            {
-                BallCountInputBox.Text = (ballsCount - 1).ToString();
-            }
-            else
-            {
-                BallCountInputBox.Text = "0";
-            }
-            UpdateBallCountButtons(sender, e);
-        }
-
-        private void UpdateBallCountButtons(object sender, EventArgs e)
-        {
-            if (!Int32.TryParse(BallCountInputBox.Text, out int ballsCount)) return;
-
-            RemoveBallButton.IsEnabled = ballsCount > 0;
-            AddBallButton.IsEnabled = ballsCount < 20;
         }
 
         public MainWindow()

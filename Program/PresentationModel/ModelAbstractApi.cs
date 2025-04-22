@@ -30,11 +30,13 @@ namespace TP.ConcurrentProgramming.Presentation.Model
 
     public abstract void Stop();
 
+    public abstract int CurrentBallsCount { get; set; }
 
+    public abstract bool Running { get; }
 
     #region IObservable
 
-        public abstract IDisposable Subscribe(IObserver<IBall> observer);
+    public abstract IDisposable Subscribe(IObserver<IBall> observer);
 
     #endregion IObservable
 

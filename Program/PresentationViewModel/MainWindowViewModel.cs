@@ -9,15 +9,44 @@
 
 using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
+using System.Text.RegularExpressions;
+using System.Windows;
+using System.Windows.Data;
+using System.Windows.Input;
+using Newtonsoft.Json.Converters;
 using TP.ConcurrentProgramming.Presentation.Model;
 using TP.ConcurrentProgramming.Presentation.ViewModel.MVVMLight;
+using TP.ConcurrentProgramming.PresentationViewModel;
 using ModelIBall = TP.ConcurrentProgramming.Presentation.Model.IBall;
 
 namespace TP.ConcurrentProgramming.Presentation.ViewModel
 {
-  public class MainWindowViewModel : ViewModelBase, IDisposable
+  public class MainWindowViewModel : ViewModelBase, IDisposable, INotifyPropertyChanged
   {
+    public ICommand AddBall { get; init; }
+    public ICommand RemoveBall { get; init; }
+
+    public ICommand StartSimulation { get; init; }
+
+    public string BallCount
+    {
+      get
+      {
+        return ModelLayer?.CurrentBallsCount.ToString();
+      }
+      set
+      {
+        if (Int32.TryParse(value, out var count))
+        {
+          ModelLayer.CurrentBallsCount = count;
+
+          NotifyPropertyChanged("BallCount");
+        }
+      }
+    }
+
     #region ctor
 
     public MainWindowViewModel() : this(null)
@@ -27,6 +56,10 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
     {
       ModelLayer = modelLayerAPI == null ? ModelAbstractApi.CreateModel() : modelLayerAPI;
       Observer = ModelLayer.Subscribe<ModelIBall>(x => Balls.Add(x));
+
+      AddBall= new BindedCommand(ExecuteAddBall, CanAddBall);
+      RemoveBall = new BindedCommand(ExecuteRemoveBall, CanRemoveBall);
+      StartSimulation = new BindedCommand(ExecuteStartSimulation, CanStartSimulation);
     }
 
     #endregion ctor
@@ -49,14 +82,48 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
       this.Balls.Clear();
     }
 
-    public void AddBall()
-    {
+    public event PropertyChangedEventHandler PropertyChanged;
 
+    private void NotifyPropertyChanged(String info)
+    {
+      if (PropertyChanged != null)
+      {
+        PropertyChanged(this, new PropertyChangedEventArgs(info));
+      }
     }
 
-    public void RemoveBall()
+    public void ExecuteAddBall(object? param)
     {
+      ModelLayer.CurrentBallsCount++;
 
+      NotifyPropertyChanged("BallCount");
+    }
+
+    public bool CanAddBall(object? param)
+    {
+      return ModelLayer.CurrentBallsCount < 20 && !ModelLayer.Running;
+    }
+
+    public void ExecuteRemoveBall(object? param)
+    {
+      ModelLayer.CurrentBallsCount--;
+
+      NotifyPropertyChanged("BallCount");
+    }
+
+    public bool CanRemoveBall(object? param)
+    {
+      return ModelLayer.CurrentBallsCount > 0 && !ModelLayer.Running;
+    }
+
+    public void ExecuteStartSimulation(object? param)
+    {
+      Start(ModelLayer.CurrentBallsCount);
+    }
+
+    public bool CanStartSimulation(object? param)
+    {
+      return ModelLayer != null && ModelLayer.CurrentBallsCount > 0 && !ModelLayer.Running;
     }
 
     public ObservableCollection<ModelIBall> Balls { get; } = new ObservableCollection<ModelIBall>();
