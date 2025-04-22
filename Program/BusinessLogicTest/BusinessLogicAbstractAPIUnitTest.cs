@@ -28,7 +28,10 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
     [TestMethod]
     public void GetDimensionsTestMethod()
     {
-      Assert.AreEqual<Dimensions>(new DefaultDimensions(10.0, 10.0, 10.0), BusinessLogicAbstractAPI.GetDimensions);
+        Dimensions dim = BusinessLogicAbstractAPI.GetDimensions;
+        Assert.AreEqual(10.0, dim.BallDimension);
+        Assert.AreEqual(10.0, dim.TableHeight);
+        Assert.AreEqual(10.0, dim.TableWidth);  
     }
   }
 }
