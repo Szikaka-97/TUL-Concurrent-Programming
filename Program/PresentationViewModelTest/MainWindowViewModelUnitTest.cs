@@ -9,6 +9,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -50,139 +51,184 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel.Test
       Random random = new Random();
       int numberOfBalls = random.Next(1, 10);
       viewModel.Start(numberOfBalls);
-      Assert.AreEqual<int>(numberOfBalls, viewModel.Balls.Count);
+      Assert.AreEqual<int>(numberOfBalls * 2, viewModel.Balls.Count);
       viewModel.Dispose();
       Assert.IsTrue(modelSimulator.Disposed);
       Assert.AreEqual<int>(0, viewModel.Balls.Count);
     }
 
-    #region testing infrastructure
+        #region testing infrastructure
 
-    private class ModelNullFixture : ModelAbstractApi
+        private class ModelNullFixture : ModelAbstractApi
+        {
+            #region Test
+
+            internal int Disposed = 0;
+            internal int Started = 0;
+            internal int Subscribed = 0;
+
+            #endregion
+
+            #region ModelAbstractApi
+
+            private ObservableCollection<IBall> fakeBalls = new();
+
+            public override ObservableCollection<IBall> Balls => fakeBalls;
+
+            private int ballCount = 0;
+            public override int CurrentBallsCount
+            {
+                get => ballCount;
+                set => ballCount = value;
+            }
+
+            public override bool Running => false;
+
+            private float _scale = 1.0f;
+            public override float Scale
+            {
+                get => _scale;
+                set => _scale = value;
+            }
+
+            public override void Dispose()
+            {
+                Disposed++;
+            }
+
+            public override void Start(int numberOfBalls)
+            {
+                Started = numberOfBalls;
+            }
+
+            public override void Stop()
+            {
+                
+            }
+
+            public override IDisposable Subscribe(IObserver<IBall> observer)
+            {
+                Subscribed++;
+                return new NullDisposable();
+            }
+
+            private class NullDisposable : IDisposable
+            {
+                public void Dispose()
+                {
+                    // nic nie robi — to tylko mock
+                }
+            }
+
+            #endregion
+        }
+
+
+
+        private class ModelSimulatorFixture : ModelAbstractApi
+{
+    #region Testing indicators
+
+    internal bool Disposed = false;
+
+    #endregion
+
+    #region ctor
+
+    public ModelSimulatorFixture()
     {
-      #region Test
-
-      internal int Disposed = 0;
-      internal int Started = 0;
-      internal int Subscribed = 0;
-
-      #endregion Test
-
-      #region ModelAbstractApi
-
-      public override void Dispose()
-      {
-        Disposed++;
-      }
-
-      public override void Start(int numberOfBalls)
-      {
-        Started = numberOfBalls;
-      }
-
-      public override void Stop()
-      {
-        throw new NotImplementedException();
-      }
-
-      public override IDisposable Subscribe(IObserver<ModelIBall> observer)
-      {
-        Subscribed++;
-        return new NullDisposable();
-      }
-
-      #endregion ModelAbstractApi
-
-      #region private
-
-      private class NullDisposable : IDisposable
-      {
-        public void Dispose()
-        { }
-      }
-
-      #endregion private
+        eventObservable = Observable.FromEventPattern<BallChangeEventArgs>(this, nameof(BallChanged));
     }
 
-    private class ModelSimulatorFixture : ModelAbstractApi
+    #endregion
+
+    #region ModelAbstractApi implementation
+
+    private ObservableCollection<IBall> balls = new();
+    public override ObservableCollection<IBall> Balls => balls;
+
+    private int ballCount = 0;
+    public override int CurrentBallsCount
     {
-      #region Testing indicators
+        get => ballCount;
+        set => ballCount = value;
+    }
 
-      internal bool Disposed = false;
+    public override bool Running => true;
 
-      #endregion Testing indicators
+    private float _scale = 1.0f;
+    public override float Scale
+    {
+        get => _scale;
+        set => _scale = value;
+    }
 
-      #region ctor
-
-      public ModelSimulatorFixture()
-      {
-        eventObservable = Observable.FromEventPattern<BallChangeEventArgs>(this, "BallChanged");
-      }
-
-      #endregion ctor
-
-      #region ModelAbstractApi fixture
-
-      public override IDisposable? Subscribe(IObserver<ModelIBall> observer)
-      {
-        return eventObservable?.Subscribe(x => observer.OnNext(x.EventArgs.Ball), ex => observer.OnError(ex), () => observer.OnCompleted());
-      }
-
-      public override void Start(int numberOfBalls)
-      {
+    public override void Start(int numberOfBalls)
+    {
+        balls.Clear();
         for (int i = 0; i < numberOfBalls; i++)
         {
-          ModelBall newBall = new ModelBall(0, 0) { };
-          BallChanged?.Invoke(this, new BallChangeEventArgs() { Ball = newBall });
+            var newBall = new ModelBall(0, 0);
+            balls.Add(newBall);
+            BallChanged?.Invoke(this, new BallChangeEventArgs { Ball = newBall });
         }
-      }
 
-      public override void Dispose()
-      {
+        ballCount = numberOfBalls;
+    }
+
+    public override void Stop()
+    {
+        balls.Clear();
+        ballCount = 0;
+    }
+
+    public override void Dispose()
+    {
         Disposed = true;
-      }
+        Stop();
+    }
 
-      public override void Stop()
-      {
-        throw new NotImplementedException();
-      }
+    public override IDisposable? Subscribe(IObserver<IBall> observer)
+    {
+        return eventObservable?.Subscribe(
+            x => observer.OnNext(x.EventArgs.Ball),
+            ex => observer.OnError(ex),
+            () => observer.OnCompleted()
+        );
+    }
 
-      #endregion ModelAbstractApi
+    #endregion
 
-      #region API
+    #region Event & support
 
-      public event EventHandler<BallChangeEventArgs> BallChanged;
+    public event EventHandler<BallChangeEventArgs>? BallChanged;
 
-      #endregion API
+    private IObservable<EventPattern<BallChangeEventArgs>>? eventObservable;
 
-      #region private
-
-      private IObservable<EventPattern<BallChangeEventArgs>>? eventObservable = null;
-
-      private class ModelBall : ModelIBall
-      {
+    private class ModelBall : IBall
+    {
         public ModelBall(double top, double left)
-        { }
+        {
+            Top = top;
+            Left = left;
+        }
 
-        #region IBall
-
-        public double Diameter => throw new NotImplementedException();
-
-        public double Top => throw new NotImplementedException();
-
-        public double Left => throw new NotImplementedException();
-
-        #region INotifyPropertyChanged
+        public double Top { get; private set; }
+        public double Left { get; private set; }
+        public double Diameter => 10.0;
+        public double Scale { get; set; } = 1.0;
 
         public event PropertyChangedEventHandler? PropertyChanged;
-
-        #endregion INotifyPropertyChanged
-
-        #endregion IBall
-      }
-
-      #endregion private
     }
+
+    public class BallChangeEventArgs : EventArgs
+    {
+        public IBall Ball { get; set; } = default!;
+    }
+
+    #endregion
+}
+
 
     #endregion testing infrastructure
   }

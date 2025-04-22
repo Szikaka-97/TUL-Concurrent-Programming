@@ -111,7 +111,7 @@ namespace TP.ConcurrentProgramming.Presentation.Model
     { Left = x; }
 
     [Conditional("DEBUG")]
-    internal void SettTop(double x)
+    internal void SetTop(double x)
     { Top = x; }
 
     #endregion testing instrumentation
