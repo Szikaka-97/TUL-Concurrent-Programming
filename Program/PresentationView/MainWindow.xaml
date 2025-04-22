@@ -9,56 +9,44 @@
     <Window.DataContext>
         <vm:MainWindowViewModel />
     </Window.DataContext>
-    <Viewbox>
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <!--Tu dodaje nasz selector dzieki ktoremu wybierami liczbe kulek-->
-            <Button x:Name="StartButton" Height="30" Width="100" Grid.Row="0" Margin="10,0,288,0" Content="Start&#xD;&#xA;" Click="StartButtonClick"/>
-            <Grid Width="100" Height="30">
-                <TextBox x:Name="BallCountInputBox" Height="20" Width="80" Margin="0,5,20,5" PreviewTextInput="ValidateNumberInTextbox" TextChanged="UpdateBallCountButtons"/>
-                <Grid Width="20" Height="30" Margin="80,0,0,0">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="15" />
-                        <RowDefinition Height="15" />
-                    </Grid.RowDefinitions>
-                    <Button x:Name="AddBallButton" Width="20" Height="15" Grid.Row="0" Padding="0,-3,0,0" Click="AddBallButtonClick">+</Button>
-                    <Button x:Name="RemoveBallButton" Width="20" Height="15" Grid.Row="1" Padding="0,-3,0,0" Click="RemoveBallButtonClick">-</Button>
-                </Grid>
-            </Grid>
-
-            <StackPanel Background="Green" Height="406" Width="406" Grid.Row="1">
-                <StackPanel Background="White" Height="100" Width="100" Margin="3,3,3,3" RenderTransformOrigin="0.5,0">
-                    <StackPanel.RenderTransform>
-                        <TransformGroup>
-                            <ScaleTransform ScaleX="4" ScaleY="4"/>
-                            <SkewTransform/>
-                            <RotateTransform/>
-                            <TranslateTransform/>
-                        </TransformGroup>
-                    </StackPanel.RenderTransform>
-                    <ItemsControl ItemsSource="{Binding Balls}">
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <Canvas />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Ellipse Width="{Binding Diameter}" Height="{Binding Diameter}" Fill="Blue" />
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                        <ItemsControl.ItemContainerStyle>
-                            <Style TargetType="ContentPresenter">
-                                <Setter Property="Canvas.Top" Value="{Binding Top}" />
-                                <Setter Property="Canvas.Left" Value="{Binding Left}" />
-                            </Style>
-                        </ItemsControl.ItemContainerStyle>
-                    </ItemsControl>
-                </StackPanel>
+    <StackPanel>
+        <StackPanel Orientation="Horizontal" Width="200" Height="42">
+            <Button x:Name="StartButton" Margin="0,0,10,0" Height="30" Width="85" Content="Start" Click="StartButtonClick"/>
+            <TextBox x:Name="BallCountInputBox" Height="20" Width="80" PreviewTextInput="ValidateNumberInTextbox" TextChanged="UpdateBallCountButtons"/>
+            <StackPanel Orientation="Vertical" Width="20" Height="30" Margin="5,0,0,0">
+                <Button x:Name="AddBallButton" Width="20" Height="15" Padding="0,-3,0,0" Click="AddBallButtonClick" Content="+"/>
+                <Button x:Name="RemoveBallButton" Width="20" Height="15" Padding="0,-3,0,0" Click="RemoveBallButtonClick" Content="-"/>
             </StackPanel>
-        </Grid>
-    </Viewbox>
+        </StackPanel>
+        <StackPanel Background="Green" Height="406" Width="406">
+            <StackPanel Background="White" Height="100" Width="100" Margin="3,3,3,3" RenderTransformOrigin="0.5,0">
+                <StackPanel.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform ScaleX="4" ScaleY="4"/>
+                        <SkewTransform/>
+                        <RotateTransform/>
+                        <TranslateTransform/>
+                    </TransformGroup>
+                </StackPanel.RenderTransform>
+                <ItemsControl ItemsSource="{Binding Balls}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Ellipse Width="{Binding Diameter}" Height="{Binding Diameter}" Fill="Blue" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="{x:Type ContentPresenter}">
+                            <Setter Property="Canvas.Top" Value="{Binding Top}" />
+                            <Setter Property="Canvas.Left" Value="{Binding Left}" />
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
+                </ItemsControl>
+            </StackPanel>
+        </StackPanel>
+    </StackPanel>
 </Window>

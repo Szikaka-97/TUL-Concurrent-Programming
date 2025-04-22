@@ -23,7 +23,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 
     #region Layer API
 
-    public static readonly Dimensions GetDimensions = new(10.0, 10.0, 10.0);
+    public static readonly Dimensions GetDimensions = new DefaultDimensions(10.0, 10.0, 10.0);
 
     public abstract void Start(int numberOfBalls, Action<IPosition, IBall> upperLayerBallAdditionHandler, Action<IBall> upperLayerBallRemovalHandler);
     public abstract void Stop();
@@ -44,18 +44,39 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 
     #endregion private
   }
-  /// <summary>
-  /// Immutable type representing table dimensions
-  /// </summary>
-  /// <param name="BallDimension"></param>
-  /// <param name="TableHeight"></param>
-  /// <param name="TableWidth"></param>
-  /// <remarks>
-  /// Must be abstract
-  /// </remarks>
-  public record Dimensions(double BallDimension, double TableHeight, double TableWidth);
+    /// <summary>
+    /// Immutable type representing table dimensions
+    /// </summary>
+    /// <param name="BallDimension"></param>
+    /// <param name="TableHeight"></param>
+    /// <param name="TableWidth"></param>
+    /// <remarks>
+    /// Must be abstract
+    /// </remarks>
+    public abstract class Dimensions
+    {
+        public abstract double BallDimension { get; }
+        public abstract double TableHeight { get; }
+        public abstract double TableWidth { get; }
+    }
 
-  public interface IPosition
+    internal class DefaultDimensions : Dimensions
+    {
+        public DefaultDimensions(double ball, double height, double width)
+        {
+            BallDimension = ball;
+            TableHeight = height;
+            TableWidth = width;
+        }
+
+        public override double BallDimension { get; }
+        public override double TableHeight { get; }
+        public override double TableWidth { get; }
+    }
+
+
+
+    public interface IPosition
   {
     double x { get; init; }
     double y { get; init; }
