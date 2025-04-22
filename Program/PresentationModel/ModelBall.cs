@@ -30,7 +30,7 @@ namespace TP.ConcurrentProgramming.Presentation.Model
 
     public double Top
     {
-      get { return TopBackingField; }
+      get { return TopBackingField * Scale; }
       private set
       {
         if (TopBackingField == value)
@@ -42,7 +42,7 @@ namespace TP.ConcurrentProgramming.Presentation.Model
 
     public double Left
     {
-      get { return LeftBackingField; }
+      get { return LeftBackingField * Scale; }
       private set
       {
         if (LeftBackingField == value)
@@ -52,7 +52,30 @@ namespace TP.ConcurrentProgramming.Presentation.Model
       }
     }
 
-    public double Diameter { get; init; } = 0;
+    public double Scale
+    {
+      get { return ScaleBackingField; }
+      set
+      {
+        if (ScaleBackingField != value)
+        {
+          ScaleBackingField = value;
+          RaisePropertyChanged();
+        }
+      }
+    }
+
+    public double Diameter {
+      get { return DiameterBackingField * Scale; }
+      init
+      {
+        if (DiameterBackingField != value)
+        {
+          DiameterBackingField = value;
+          RaisePropertyChanged();
+        }
+      }
+    }
 
     #region INotifyPropertyChanged
 
@@ -66,6 +89,8 @@ namespace TP.ConcurrentProgramming.Presentation.Model
 
     private double TopBackingField;
     private double LeftBackingField;
+    private double ScaleBackingField;
+    private double DiameterBackingField;
 
     private void NewPositionNotification(object sender, IPosition e)
     {

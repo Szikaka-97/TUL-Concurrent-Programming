@@ -8,7 +8,10 @@
 //__________________________________________________________________________________________
 
 using System;
+using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.ComponentModel;
+using Newtonsoft.Json.Linq;
 
 namespace TP.ConcurrentProgramming.Presentation.Model
 {
@@ -17,6 +20,7 @@ namespace TP.ConcurrentProgramming.Presentation.Model
     double Top { get; }
     double Left { get; }
     double Diameter { get; }
+    double Scale { get; set; }
   }
 
   public abstract class ModelAbstractApi : IObservable<IBall>, IDisposable
@@ -33,6 +37,10 @@ namespace TP.ConcurrentProgramming.Presentation.Model
     public abstract int CurrentBallsCount { get; set; }
 
     public abstract bool Running { get; }
+
+    public abstract float Scale { get; set; }
+
+    public abstract ObservableCollection<IBall> Balls { get; }
 
     #region IObservable
 

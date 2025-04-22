@@ -8,6 +8,7 @@
 //_____________________________________________________________________________________________________________________________________
 
 using System;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Reactive;
@@ -37,6 +38,7 @@ namespace TP.ConcurrentProgramming.Presentation.Model
       if (Disposed)
         throw new ObjectDisposedException(nameof(Model));
       layerBelow.Dispose();
+      Balls.Clear();
       Disposed = true;
     }
 
@@ -55,11 +57,32 @@ namespace TP.ConcurrentProgramming.Presentation.Model
     public override void Stop()
     {
       layerBelow.Stop();
+
+      Balls.Clear();
     }
 
     public override int CurrentBallsCount { get; set; }
 
     public override bool Running => _Running;
+
+    public override float Scale
+    {
+      get
+      {
+        return _Scale;
+      }
+      set
+      {
+        _Scale = value;
+
+        foreach (var ball in Balls)
+        {
+          ball.Scale = _Scale;
+        }
+      }
+    }
+
+    public override ObservableCollection<IBall> Balls { get; } = new();
 
     #endregion ModelAbstractApi
 
@@ -73,12 +96,13 @@ namespace TP.ConcurrentProgramming.Presentation.Model
 
     private bool Disposed = false;
     private bool _Running = false;
+    private float _Scale = 1;
     private readonly IObservable<EventPattern<BallChangeEventArgs>> eventObservable = null;
     private readonly UnderneathLayerAPI layerBelow = null;
 
     private void BallAdditionHandler(BusinessLogic.IPosition position, BusinessLogic.IBall ball)
     {
-      ModelBall newBall = new ModelBall(position.x, position.y, ball) { Diameter = 5 };
+      ModelBall newBall = new ModelBall(position.x, position.y, ball) { Diameter = 5, Scale = _Scale };
       BallChanged.Invoke(this, new BallChangeEventArgs() { Ball = newBall });
     }
 

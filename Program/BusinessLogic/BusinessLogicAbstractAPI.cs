@@ -44,39 +44,37 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 
     #endregion private
   }
-    /// <summary>
-    /// Immutable type representing table dimensions
-    /// </summary>
-    /// <param name="BallDimension"></param>
-    /// <param name="TableHeight"></param>
-    /// <param name="TableWidth"></param>
-    /// <remarks>
-    /// Must be abstract
-    /// </remarks>
-    public abstract class Dimensions
+  /// <summary>
+  /// Immutable type representing table dimensions
+  /// </summary>
+  /// <param name="BallDimension"></param>
+  /// <param name="TableHeight"></param>
+  /// <param name="TableWidth"></param>
+  /// <remarks>
+  /// Must be abstract
+  /// </remarks>
+  public abstract class Dimensions
+  {
+    public abstract double BallDimension { get; }
+    public abstract double TableHeight { get; }
+    public abstract double TableWidth { get; }
+  }
+
+  internal class DefaultDimensions : Dimensions
+  {
+    public DefaultDimensions(double ball, double height, double width)
     {
-        public abstract double BallDimension { get; }
-        public abstract double TableHeight { get; }
-        public abstract double TableWidth { get; }
+        BallDimension = ball;
+        TableHeight = height;
+        TableWidth = width;
     }
 
-    internal class DefaultDimensions : Dimensions
-    {
-        public DefaultDimensions(double ball, double height, double width)
-        {
-            BallDimension = ball;
-            TableHeight = height;
-            TableWidth = width;
-        }
+    public override double BallDimension { get; }
+    public override double TableHeight { get; }
+    public override double TableWidth { get; }
+  }
 
-        public override double BallDimension { get; }
-        public override double TableHeight { get; }
-        public override double TableWidth { get; }
-    }
-
-
-
-    public interface IPosition
+  public interface IPosition
   {
     double x { get; init; }
     double y { get; init; }

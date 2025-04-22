@@ -7,47 +7,27 @@
 //  https://github.com/mpostol/TP/discussions/182
 //__________________________________________________________________________________________
 
-using Newtonsoft.Json.Linq;
-using System;
-using System.Text.RegularExpressions;
 using System.Windows;
-using System.Windows.Input;
 using TP.ConcurrentProgramming.Presentation.ViewModel;
 
 namespace TP.ConcurrentProgramming.PresentationView
 {
-    /// <summary>
-    /// View implementation
-    /// </summary>
-    public partial class MainWindow : Window
+/// <summary>
+/// View implementation
+/// </summary>
+  public partial class MainWindow : Window
+  {
+    public MainWindow()
     {
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            if (DataContext is MainWindowViewModel viewModel)
-            {
-                viewModel.Stop();
-                viewModel.Dispose();
-            }
-        }
-
-        public MainWindow()
-        {
-            InitializeComponent();
-            MainWindowViewModel viewModel = (MainWindowViewModel)DataContext;
-            double screenWidth = SystemParameters.PrimaryScreenWidth;
-            double screenHeight = SystemParameters.PrimaryScreenHeight;
-        }
-
-        /// <summary>
-        /// Raises the <seealso cref="System.Windows.Window.Closed"/> event.
-        /// </summary>
-        /// <param name="e">An <see cref="EventArgs"/> that contains the event data.</param>
-        protected override void OnClosed(EventArgs e)
-        {
-            if (DataContext is MainWindowViewModel viewModel)
-                viewModel.Dispose();
-            base.OnClosed(e);
-        }
-
+      InitializeComponent();
+      MainWindowViewModel viewModel = (MainWindowViewModel) DataContext;
     }
+
+    // Workaround because we cannot bind events to a WPF app
+    private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+      if (DataContext is MainWindowViewModel viewModel)
+        viewModel.TableSizeChanged(sender, e);
+    }
+  }
 }

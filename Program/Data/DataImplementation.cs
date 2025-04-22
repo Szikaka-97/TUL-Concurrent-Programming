@@ -126,25 +126,13 @@ namespace TP.ConcurrentProgramming.Data
         );
 
         movement = new Vector(
-          Math.Clamp(movement.x, item.Radius - item.Position.x , TableSize - item.Position.x - item.Radius),
+          Math.Clamp(movement.x, item.Radius - item.Position.x, TableSize - item.Position.x - item.Radius),
           Math.Clamp(movement.y, item.Radius - item.Position.y, TableSize - item.Position.y - item.Radius)
         );
+
         
         item.Move(movement);
       }
-    }
-
-    private bool IsInBounds(Vector pos, double radius)
-    {
-      return (
-        pos.x - radius >= 0
-        &&
-        pos.y - radius >= 0
-        &&
-        pos.x + radius <= TableSize
-        &&
-        pos.y + radius <= TableSize
-      );
     }
 
     #endregion private

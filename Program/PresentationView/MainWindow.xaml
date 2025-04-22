@@ -4,49 +4,50 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:TP.ConcurrentProgramming.Presentation.ViewModel;assembly=TP.ConcurrentProgramming.PresentationViewModel"
+        xmlns:i = "http://schemas.microsoft.com/expression/2010/interactivity" 
+        xmlns:ei = "http://schemas.microsoft.com/expression/2010/interactions" 
         mc:Ignorable="d"
-        Title="Game board" Height="auto" Width="auto">
-    <Window.DataContext>
-        <vm:MainWindowViewModel />
-    </Window.DataContext>
-    <StackPanel>
-        <StackPanel Orientation="Horizontal" Width="200" Height="42">
-            <Button x:Name="StartButton" Margin="0,0,10,0" Height="30" Width="85" Content="Start" Command="{Binding StartSimulation, Mode=TwoWay}"/>
-            <TextBox x:Name="BallCountInputBox" Height="20" Width="80" IsEnabled="False" Text="{Binding BallCount, Mode=TwoWay}" />
-            <StackPanel Orientation="Vertical" Width="20" Height="30" Margin="5,0,0,0">
-            <Button x:Name="AddBallButton" Width="20" Height="15" Padding="0,-3,0,0" Command="{Binding AddBall, Mode=TwoWay}" Content="+"/>
-            <Button x:Name="RemoveBallButton" Width="20" Height="15" Padding="0,-3,0,0" Command="{Binding RemoveBall, Mode=TwoWay}" Content="-"/>
-            </StackPanel>
-        </StackPanel>
-        <StackPanel Background="Green" Height="406" Width="406">
-            <StackPanel Background="White" Height="100" Width="100" Margin="3,3,3,3" RenderTransformOrigin="0.5,0">
-                <StackPanel.RenderTransform>
-                    <TransformGroup>
-                        <ScaleTransform ScaleX="4" ScaleY="4"/>
-                        <SkewTransform/>
-                        <RotateTransform/>
-                        <TranslateTransform/>
-                    </TransformGroup>
-                </StackPanel.RenderTransform>
-                <ItemsControl ItemsSource="{Binding Balls}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <Canvas />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Ellipse Width="{Binding Diameter}" Height="{Binding Diameter}" Fill="Blue" />
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                    <ItemsControl.ItemContainerStyle>
-                        <Style TargetType="{x:Type ContentPresenter}">
-                            <Setter Property="Canvas.Top" Value="{Binding Top}" />
-                            <Setter Property="Canvas.Left" Value="{Binding Left}" />
-                        </Style>
-                    </ItemsControl.ItemContainerStyle>
-                </ItemsControl>
-            </StackPanel>
-        </StackPanel>
+        Title="Game board" Height="auto" Width="auto" SizeChanged="Window_SizeChanged">
+  <Window.DataContext>
+    <vm:MainWindowViewModel />
+  </Window.DataContext>
+  <StackPanel Width="Auto" Height="Auto">
+    <StackPanel Orientation="Horizontal" Width="200" Height="42">
+      <Button x:Name="StartButton" Margin="0,0,10,0" Height="30" Width="85" Content="Start" Command="{Binding StartSimulation, Mode=TwoWay}"/>
+      <TextBox x:Name="BallCountInputBox" Height="20" Width="80" IsEnabled="False" Text="{Binding BallCount, Mode=TwoWay}" />
+      <StackPanel Orientation="Vertical" Width="20" Height="30" Margin="5,0,0,0">
+        <Button x:Name="AddBallButton" Width="20" Height="15" Padding="0,-3,0,0" Command="{Binding AddBall, Mode=TwoWay}" Content="+"/>
+        <Button x:Name="RemoveBallButton" Width="20" Height="15" Padding="0,-3,0,0" Command="{Binding RemoveBall, Mode=TwoWay}" Content="-"/>
+      </StackPanel>
     </StackPanel>
+    <Border BorderBrush="Blue" BorderThickness="2" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <StackPanel Background="White" Width="{Binding TableSize, Mode=TwoWay}" Height="{Binding TableSize, Mode=TwoWay}" Margin="2,2,2,2" RenderTransformOrigin="0.5,0">
+        <StackPanel.RenderTransform>
+          <TransformGroup>
+            <SkewTransform/>
+            <RotateTransform/>
+            <TranslateTransform/>
+          </TransformGroup>
+        </StackPanel.RenderTransform>
+        <ItemsControl ItemsSource="{Binding Balls}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <Canvas />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Ellipse Width="{Binding Diameter}" Height="{Binding Diameter}" Fill="Blue" />
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+          <ItemsControl.ItemContainerStyle>
+            <Style TargetType="{x:Type ContentPresenter}">
+              <Setter Property="Canvas.Top" Value="{Binding Top}" />
+              <Setter Property="Canvas.Left" Value="{Binding Left}" />
+            </Style>
+          </ItemsControl.ItemContainerStyle>
+        </ItemsControl>
+      </StackPanel>
+    </Border>
+  </StackPanel>
 </Window>

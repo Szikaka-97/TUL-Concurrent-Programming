@@ -10,6 +10,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -23,11 +24,10 @@ using ModelIBall = TP.ConcurrentProgramming.Presentation.Model.IBall;
 
 namespace TP.ConcurrentProgramming.Presentation.ViewModel
 {
-  public class MainWindowViewModel : ViewModelBase, IDisposable, INotifyPropertyChanged
+  public class MainWindowViewModel : ViewModelBase, IDisposable
   {
     public ICommand AddBall { get; init; }
     public ICommand RemoveBall { get; init; }
-
     public ICommand StartSimulation { get; init; }
 
     public string BallCount
@@ -42,7 +42,7 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
         {
           ModelLayer.CurrentBallsCount = count;
 
-          NotifyPropertyChanged("BallCount");
+          RaisePropertyChanged("BallCount");
         }
       }
     }
@@ -57,7 +57,7 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
       ModelLayer = modelLayerAPI == null ? ModelAbstractApi.CreateModel() : modelLayerAPI;
       Observer = ModelLayer.Subscribe<ModelIBall>(x => Balls.Add(x));
 
-      AddBall= new BindedCommand(ExecuteAddBall, CanAddBall);
+      AddBall = new BindedCommand(ExecuteAddBall, CanAddBall);
       RemoveBall = new BindedCommand(ExecuteRemoveBall, CanRemoveBall);
       StartSimulation = new BindedCommand(ExecuteStartSimulation, CanStartSimulation);
     }
@@ -78,25 +78,13 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
     {
       if (Disposed)
         throw new ObjectDisposedException(nameof(MainWindowViewModel));
-
-      this.Balls.Clear();
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
-
-    private void NotifyPropertyChanged(String info)
-    {
-      if (PropertyChanged != null)
-      {
-        PropertyChanged(this, new PropertyChangedEventArgs(info));
-      }
     }
 
     public void ExecuteAddBall(object? param)
     {
       ModelLayer.CurrentBallsCount++;
 
-      NotifyPropertyChanged("BallCount");
+      RaisePropertyChanged("BallCount");
     }
 
     public bool CanAddBall(object? param)
@@ -108,7 +96,7 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
     {
       ModelLayer.CurrentBallsCount--;
 
-      NotifyPropertyChanged("BallCount");
+      RaisePropertyChanged("BallCount");
     }
 
     public bool CanRemoveBall(object? param)
@@ -126,13 +114,29 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
       return ModelLayer != null && ModelLayer.CurrentBallsCount > 0 && !ModelLayer.Running;
     }
 
-    public ObservableCollection<ModelIBall> Balls { get; } = new ObservableCollection<ModelIBall>();
+    public float TableSize {
+      get { return 100 * ModelLayer.Scale; }
+      set 
+      {
+        ModelLayer.Scale = value / 100;
+        RaisePropertyChanged(nameof(TableSize));
+      }
+    }
+
+    public void TableSizeChanged(object sender, SizeChangedEventArgs e)
+    {
+      double minSize = Math.Min(e.NewSize.Width - 8, e.NewSize.Height - 89);
+
+      TableSize = (float) minSize;
+    }
+
+    public ObservableCollection<ModelIBall> Balls => ModelLayer.Balls;
 
     public void InitializeObserver()
     {
       if (Disposed)
         throw new ObjectDisposedException(nameof(MainWindowViewModel));
-      Observer = ModelLayer.Subscribe<ModelIBall>(x => Balls.Add(x));
+      Observer = ModelLayer.Subscribe<ModelIBall>(ball => Balls.Add(ball));
     }
     #endregion public API
 
@@ -144,7 +148,6 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
       {
         if (disposing)
         {
-          Balls.Clear();
           Observer.Dispose();
           ModelLayer.Dispose();
         }
