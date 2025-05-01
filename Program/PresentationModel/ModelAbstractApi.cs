@@ -20,8 +20,11 @@ namespace TP.ConcurrentProgramming.Presentation.Model
     double Top { get; }
     double Left { get; }
     double Diameter { get; }
-    double Scale { get; set; }
+
+    void UpdateScale();
   }
+
+  public delegate void ScaleChangeHandler(double newScale);
 
   public abstract class ModelAbstractApi : IObservable<IBall>, IDisposable
   {

@@ -13,6 +13,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using TP.ConcurrentProgramming.BusinessLogic;
+using static System.Formats.Asn1.AsnWriter;
 using LogicIBall = TP.ConcurrentProgramming.BusinessLogic.IBall;
 
 namespace TP.ConcurrentProgramming.Presentation.Model
@@ -30,7 +31,7 @@ namespace TP.ConcurrentProgramming.Presentation.Model
 
     public double Top
     {
-      get { return TopBackingField * Scale; }
+      get { return TopBackingField * ModelImplementation.Instance.Scale; }
       private set
       {
         if (TopBackingField == value)
@@ -42,7 +43,7 @@ namespace TP.ConcurrentProgramming.Presentation.Model
 
     public double Left
     {
-      get { return LeftBackingField * Scale; }
+      get { return LeftBackingField * ModelImplementation.Instance.Scale; }
       private set
       {
         if (LeftBackingField == value)
@@ -52,21 +53,9 @@ namespace TP.ConcurrentProgramming.Presentation.Model
       }
     }
 
-    public double Scale
+    public double Diameter
     {
-      get { return ScaleBackingField; }
-      set
-      {
-        if (ScaleBackingField != value)
-        {
-          ScaleBackingField = value;
-          RaisePropertyChanged();
-        }
-      }
-    }
-
-    public double Diameter {
-      get { return DiameterBackingField * Scale; }
+      get { return DiameterBackingField * ModelImplementation.Instance.Scale; }
       init
       {
         if (DiameterBackingField != value)
@@ -75,6 +64,11 @@ namespace TP.ConcurrentProgramming.Presentation.Model
           RaisePropertyChanged();
         }
       }
+    }
+
+    public void UpdateScale()
+    {
+      RaisePropertyChanged(nameof(Diameter));
     }
 
     #region INotifyPropertyChanged
@@ -89,7 +83,6 @@ namespace TP.ConcurrentProgramming.Presentation.Model
 
     private double TopBackingField;
     private double LeftBackingField;
-    private double ScaleBackingField;
     private double DiameterBackingField;
 
     private void NewPositionNotification(object sender, IPosition e)

@@ -77,7 +77,7 @@ namespace TP.ConcurrentProgramming.Presentation.Model
 
         foreach (var ball in Balls)
         {
-          ball.Scale = _Scale;
+          ball.UpdateScale();
         }
       }
     }
@@ -89,6 +89,11 @@ namespace TP.ConcurrentProgramming.Presentation.Model
     #region API
 
     public event EventHandler<BallChangeEventArgs> BallChanged;
+
+    public static ModelAbstractApi Instance
+    {
+      get => CreateModel();
+    }
 
     #endregion API
 
@@ -102,7 +107,7 @@ namespace TP.ConcurrentProgramming.Presentation.Model
 
     private void BallAdditionHandler(BusinessLogic.IPosition position, BusinessLogic.IBall ball)
     {
-      ModelBall newBall = new ModelBall(position.x, position.y, ball) { Diameter = 5, Scale = _Scale };
+      ModelBall newBall = new ModelBall(position.x, position.y, ball) { Diameter = 5 };
       BallChanged.Invoke(this, new BallChangeEventArgs() { Ball = newBall });
     }
 
