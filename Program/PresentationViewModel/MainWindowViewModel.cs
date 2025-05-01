@@ -136,7 +136,7 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
     {
       if (Disposed)
         throw new ObjectDisposedException(nameof(MainWindowViewModel));
-      Observer = ModelLayer.Subscribe<ModelIBall>(ball => Balls.Add(ball));
+      Observer = ModelLayer.Subscribe<ModelIBall>(Balls.Add);
     }
     #endregion public API
 
