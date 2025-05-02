@@ -31,7 +31,7 @@ namespace TP.ConcurrentProgramming.Presentation.Model
 
     public double Top
     {
-      get { return TopBackingField * ModelImplementation.Instance.Scale; }
+      get { return (TopBackingField - Radius) * ModelImplementation.Instance.Scale; }
       private set
       {
         if (TopBackingField == value)
@@ -43,7 +43,7 @@ namespace TP.ConcurrentProgramming.Presentation.Model
 
     public double Left
     {
-      get { return LeftBackingField * ModelImplementation.Instance.Scale; }
+      get { return (LeftBackingField - Radius) * ModelImplementation.Instance.Scale; }
       private set
       {
         if (LeftBackingField == value)
@@ -84,6 +84,8 @@ namespace TP.ConcurrentProgramming.Presentation.Model
     private double TopBackingField;
     private double LeftBackingField;
     private double DiameterBackingField;
+
+    private double Radius => DiameterBackingField / 2;
 
     private void NewPositionNotification(object sender, IPosition e)
     {

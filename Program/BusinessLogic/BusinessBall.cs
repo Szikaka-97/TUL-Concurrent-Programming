@@ -15,6 +15,9 @@ namespace TP.ConcurrentProgramming.BusinessLogic
     public Ball(Data.IBall ball)
     {
       ball.NewPositionNotification += RaisePositionChangeEvent;
+
+      this.dataBall = ball;
+      this.position = new Position(0, 0);
     }
 
     #region IBall
@@ -25,9 +28,26 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 
     #region private
 
+    private Data.IBall dataBall;
+
+    private IPosition position;
+
+    private double Radius => this.dataBall.Diameter / 2;
+
     private void RaisePositionChangeEvent(object? sender, Data.IVector e)
     {
-      NewPositionNotification?.Invoke(this, new Position(e.x, e.y));
+      this.position = new Position(e.x, e.y);
+
+      if (this.position.x + Radius >= 100 || this.position.x - Radius <= 0)
+      {
+        this.dataBall.Velocity = new BusinessVector(-this.dataBall.Velocity.x, this.dataBall.Velocity.y);
+      }
+      if (this.position.y + Radius >= 100 || this.position.y - Radius <= 0)
+      {
+        this.dataBall.Velocity = new BusinessVector(this.dataBall.Velocity.x, -this.dataBall.Velocity.y);
+      }
+
+      NewPositionNotification?.Invoke(this, this.position);
     }
 
     #endregion private

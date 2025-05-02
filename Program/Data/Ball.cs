@@ -45,7 +45,7 @@ namespace TP.ConcurrentProgramming.Data
 
     #region internal
 
-    internal Vector Position
+    internal IVector Position
     {
       get => PositionBackingField;
     }
@@ -54,7 +54,7 @@ namespace TP.ConcurrentProgramming.Data
 
     #region private
 
-    private Vector PositionBackingField;
+    private IVector PositionBackingField;
     private double DiameterBackingField;
 
     private void RaiseNewPositionChangeNotification()
@@ -62,7 +62,7 @@ namespace TP.ConcurrentProgramming.Data
       NewPositionNotification?.Invoke(this, PositionBackingField);
     }
 
-    internal void Move(Vector delta)
+    internal void Move(IVector delta)
     {
       PositionBackingField = PositionBackingField + delta;
 

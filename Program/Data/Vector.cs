@@ -38,24 +38,24 @@ namespace TP.ConcurrentProgramming.Data
       y = YComponent;
     }
 
-    public static Vector operator +(Vector a, Vector b)
+    public IVector Add(IVector other)
     {
-      return new Vector(a.x + b.x, a.y + b.y);
+      return new Vector(this.x + other.x, this.y + other.y);
     }
 
-    public static Vector operator -(Vector a, Vector b)
+    public IVector Subtract(IVector other)
     {
-      return new Vector(a.x - b.x, a.y - b.y);
+      return new Vector(this.x - other.x, this.y - other.y);
     }
 
-    public static Vector operator *(Vector vec, float scale)
+    public IVector Multiply(float scale)
     {
-      return new Vector(vec.x * scale, vec.y * scale);
+      return new Vector(this.x * scale, this.y * scale);
     }
 
-    public static Vector operator /(Vector vec, float scale)
+    public IVector Divide(float scale)
     {
-      return new Vector(vec.x / scale, vec.y / scale);
+      return new Vector(this.x / scale, this.y / scale);
     }
   }
 }

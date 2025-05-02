@@ -18,9 +18,7 @@ namespace TP.ConcurrentProgramming.Data
     #region ctor
 
     public DataImplementation()
-    {
-      MoveTimer = new Timer(Move, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(50));
-    }
+    { }
 
     #endregion ctor
 
@@ -42,6 +40,8 @@ namespace TP.ConcurrentProgramming.Data
       {
         AddBall();
       }
+
+      MoveTimer = new Timer(Move, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(50));
     }
 
     public override void EndSimulation()
@@ -57,8 +57,14 @@ namespace TP.ConcurrentProgramming.Data
         throw new ObjectDisposedException(nameof(DataImplementation));
 
       Vector startingPosition = new(RandomGenerator.Next(10, TableSize - 10), RandomGenerator.Next(10, TableSize - 10));
-      Ball newBall = new(startingPosition, startingPosition);
-      BallCreationHandler(startingPosition, newBall);
+
+      double bearing = RandomGenerator.NextDouble();
+
+      Vector vel = new Vector(Math.Sin(bearing), Math.Cos(bearing));
+
+      Ball newBall = new(startingPosition, vel);
+
+      BallCreationHandler(newBall.Position, newBall);
       BallsList.Add(newBall);
     }
 
@@ -106,7 +112,7 @@ namespace TP.ConcurrentProgramming.Data
     //private bool disposedValue;
     private bool Disposed = false;
 
-    private readonly Timer MoveTimer;
+    private Timer MoveTimer;
     private Random RandomGenerator = new();
     private List<Ball> BallsList = [];
     private Action<IVector, IBall> BallCreationHandler;
@@ -115,23 +121,9 @@ namespace TP.ConcurrentProgramming.Data
 
     private void Move(object? x)
     {
-      foreach (Ball item in BallsList)
+      foreach (Ball ball in BallsList)
       {
-        double bearing = RandomGenerator.NextDouble() * 2 * Math.PI;
-        double dist = RandomGenerator.NextDouble();
-
-        var movement = new Vector(
-          Math.Cos(bearing) * dist,
-          Math.Sin(bearing) * dist
-        );
-
-        movement = new Vector(
-          Math.Clamp(movement.x, item.Radius - item.Position.x, TableSize - item.Position.x - item.Radius),
-          Math.Clamp(movement.y, item.Radius - item.Position.y, TableSize - item.Position.y - item.Radius)
-        );
-
-        
-        item.Move(movement);
+        ball.Move(ball.Velocity);
       }
     }
 

@@ -41,7 +41,8 @@ namespace TP.ConcurrentProgramming.Presentation.Model
 
     public abstract bool Running { get; }
 
-    public abstract float Scale { get; set; }
+    public abstract double TableSize { get; set; }
+    public abstract double Scale { get; set; }
 
     public abstract ObservableCollection<IBall> Balls { get; }
 

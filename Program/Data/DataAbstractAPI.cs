@@ -55,6 +55,16 @@ namespace TP.ConcurrentProgramming.Data
     /// The y component of the vector.
     /// </summary>
     double y { get; init; }
+
+    IVector Add(IVector other);
+    IVector Subtract(IVector other);
+    IVector Multiply(float scale);
+    IVector Divide(float scale);
+
+    public static IVector operator +(IVector a, IVector b) => a.Add(b);
+    public static IVector operator -(IVector a, IVector b) => a.Subtract(b);
+    public static IVector operator *(IVector vec, float scale) => vec.Multiply(scale);
+    public static IVector operator /(IVector vec, float scale) => vec.Divide(scale);
   }
 
   public interface IBall

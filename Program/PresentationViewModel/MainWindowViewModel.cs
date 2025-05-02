@@ -114,11 +114,11 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
       return ModelLayer != null && ModelLayer.CurrentBallsCount > 0 && !ModelLayer.Running;
     }
 
-    public float TableSize {
-      get { return 100 * ModelLayer.Scale; }
+    public double TableSize {
+      get => ModelLayer.TableSize;
       set 
       {
-        ModelLayer.Scale = value / 100;
+        ModelLayer.TableSize = value;
         RaisePropertyChanged(nameof(TableSize));
       }
     }

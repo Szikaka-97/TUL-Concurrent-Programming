@@ -65,12 +65,15 @@ namespace TP.ConcurrentProgramming.Presentation.Model
 
     public override bool Running => _Running;
 
-    public override float Scale
+    public override double TableSize
     {
-      get
-      {
-        return _Scale;
-      }
+      get => Scale * UnderneathLayerAPI.Dimensions.TableSize;
+      set => Scale = value / UnderneathLayerAPI.Dimensions.TableSize;
+    }
+
+    public override double Scale
+    {
+      get => _Scale;
       set
       {
         _Scale = value;
@@ -101,13 +104,13 @@ namespace TP.ConcurrentProgramming.Presentation.Model
 
     private bool Disposed = false;
     private bool _Running = false;
-    private float _Scale = 1;
+    private double _Scale = 1;
     private readonly IObservable<EventPattern<BallChangeEventArgs>> eventObservable = null;
     private readonly UnderneathLayerAPI layerBelow = null;
 
     private void BallAdditionHandler(BusinessLogic.IPosition position, BusinessLogic.IBall ball)
     {
-      ModelBall newBall = new ModelBall(position.x, position.y, ball) { Diameter = 5 };
+      ModelBall newBall = new ModelBall(position.x, position.y, ball) { Diameter = UnderneathLayerAPI.Dimensions.BallDimension };
       BallChanged.Invoke(this, new BallChangeEventArgs() { Ball = newBall });
     }
 
