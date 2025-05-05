@@ -8,6 +8,8 @@
 //
 //_____________________________________________________________________________________________________________________________________
 
+using TP.ConcurrentProgramming.Data;
+
 namespace TP.ConcurrentProgramming.BusinessLogic
 {
   public abstract class BusinessLogicAbstractAPI : IDisposable
@@ -29,14 +31,15 @@ namespace TP.ConcurrentProgramming.BusinessLogic
     public abstract void Stop();
     public abstract void AddBall();
     public abstract void RemoveBall();
+    internal abstract IVector ComputeCollision(BallMovement movement);
+
+    #endregion Layer API
 
     #region IDisposable
 
     public abstract void Dispose();
 
     #endregion IDisposable
-
-    #endregion Layer API
 
     #region private
 
@@ -79,5 +82,11 @@ namespace TP.ConcurrentProgramming.BusinessLogic
   public interface IBall 
   {
     event EventHandler<IPosition> NewPositionNotification;
+  }
+
+  internal class BallMovement(Ball ball)
+  {
+    public Ball movingBall = ball;
+    public IPosition[] state;
   }
 }

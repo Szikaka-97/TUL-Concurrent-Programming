@@ -8,6 +8,8 @@
 //
 //_____________________________________________________________________________________________________________________________________
 
+using TP.ConcurrentProgramming.Data;
+
 namespace TP.ConcurrentProgramming.BusinessLogic
 {
   internal class Ball : IBall
@@ -17,7 +19,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
       ball.NewPositionNotification += RaisePositionChangeEvent;
 
       this.dataBall = ball;
-      this.position = new Position(0, 0);
+      Position = new Position(0, 0);
     }
 
     #region IBall
@@ -30,24 +32,23 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 
     private Data.IBall dataBall;
 
-    private IPosition position;
+    public IPosition Position;
 
-    private double Radius => this.dataBall.Diameter / 2;
+    public double Radius => this.dataBall.Diameter / 2;
+    public IVector Velocity
+    {
+      get => this.dataBall.Velocity;
+      set => this.dataBall.Velocity = value;
+    }
+    
 
     private void RaisePositionChangeEvent(object? sender, Data.IVector e)
     {
-      this.position = new Position(e.x, e.y);
+      Position = new Position(e.x, e.y);
 
-      if (this.position.x + Radius >= 100 || this.position.x - Radius <= 0)
-      {
-        this.dataBall.Velocity = new BusinessVector(-this.dataBall.Velocity.x, this.dataBall.Velocity.y);
-      }
-      if (this.position.y + Radius >= 100 || this.position.y - Radius <= 0)
-      {
-        this.dataBall.Velocity = new BusinessVector(this.dataBall.Velocity.x, -this.dataBall.Velocity.y);
-      }
+      Velocity = BusinessLogicAbstractAPI.GetBusinessLogicLayer().ComputeCollision(new BallMovement(this));
 
-      NewPositionNotification?.Invoke(this, this.position);
+      NewPositionNotification?.Invoke(this, Position);
     }
 
     #endregion private

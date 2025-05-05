@@ -8,6 +8,7 @@
 //
 //_____________________________________________________________________________________________________________________________________
 
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using UnderneathLayerAPI = TP.ConcurrentProgramming.Data.DataAbstractAPI;
 
@@ -61,6 +62,28 @@ namespace TP.ConcurrentProgramming.BusinessLogic
       layerBelow.RemoveBall();
     }
 
+    internal override Data.IVector ComputeCollision(BallMovement movement)
+    {
+      var ball = movement.movingBall;
+      var currentVel = movement.movingBall.Velocity;
+
+      if (ball.Position.x + ball.Radius >= 100 || ball.Position.x - ball.Radius <= 0)
+      {
+        currentVel = new BusinessVector(-currentVel.x, currentVel.y);
+      }
+      if (ball.Position.y + ball.Radius >= 100 || ball.Position.y - ball.Radius <= 0)
+      {
+        currentVel = new BusinessVector(currentVel.x, -currentVel.y);
+      }
+
+      return currentVel;
+    }
+
+    internal void QueueMovement(BallMovement movement)
+    {
+
+    }
+
     #endregion BusinessLogicAbstractAPI
 
     #region private
@@ -70,6 +93,8 @@ namespace TP.ConcurrentProgramming.BusinessLogic
     private readonly UnderneathLayerAPI layerBelow;
 
     private Action<IPosition, IBall> ballCreationHandler;
+
+    private ConcurrentQueue<BallMovement> queuedMovements;
 
     #endregion private
 
