@@ -10,6 +10,7 @@
 
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using TP.ConcurrentProgramming.Data;
 using UnderneathLayerAPI = TP.ConcurrentProgramming.Data.DataAbstractAPI;
 
 
@@ -49,7 +50,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 
       ballCreationHandler = upperLayerBallCreationHandler;
 
-      layerBelow.Start(numberOfBalls,
+      layerBelow.Start(numberOfBalls, 20,
         (startingPosition, databall) =>
         {
           Ball newBall = new Ball(databall);
@@ -84,48 +85,86 @@ namespace TP.ConcurrentProgramming.BusinessLogic
       layerBelow.RemoveBall();
     }
 
-    internal override Data.IVector ComputeCollision(BallMovement movement)
+    internal override CollisionEvent? ComputeCollision(BallMovement movement)
     {
-      var ball = movement.movingBall;
-      var currentVel = ball.Velocity;
+      lock (balls)
+      {
+        var ball = movement.ball;
+        var currentVel = ball.Velocity;
 
-      if (ball.Position.x + ball.Radius >= 100 || ball.Position.x - ball.Radius <= 0)
-      {
-        currentVel = new BusinessVector(-currentVel.x, currentVel.y);
-      }
-      if (ball.Position.y + ball.Radius >= 100 || ball.Position.y - ball.Radius <= 0)
-      {
-        currentVel = new BusinessVector(currentVel.x, -currentVel.y);
-      }
+        double timeToCollision = 0;
+        IVector collisionNormal;
+        Ball? collidingBall = null;
 
-      lock (ballListLock)
-      {
-        foreach (var other in balls)
+        var xBound = currentVel.x > 0 ? layerBelow.SimulationParameters.tableSize - ball.Radius : ball.Radius;
+        var yBound = currentVel.y > 0 ? layerBelow.SimulationParameters.tableSize - ball.Radius : ball.Radius;
+
+        var xNormal = currentVel.x > 0 ? -1 : 1;
+        var yNormal = currentVel.y > 0 ? -1 : 1;
+
+        timeToCollision = (xBound - ball.Position.x) / currentVel.x;
+        collisionNormal = new BusinessVector(xNormal, 0);
+
+        var tempTime = (yBound - ball.Position.y) / currentVel.y;
+        if (tempTime < timeToCollision)
         {
-          if (other == ball) continue;
+          timeToCollision = tempTime;
+          collisionNormal = new BusinessVector(0, yNormal);
+        }
 
-          double dx = ball.Position.x - other.Position.x;
-          double dy = ball.Position.y - other.Position.y;
-          double dist = Math.Sqrt(dx * dx + dy * dy);
-          double minDist = ball.Radius + other.Radius;
+        foreach (var candidate in balls)
+        {
+          if (candidate == ball) continue;
 
-          if (dist < minDist && dist > 0)
+          double r = ball.Radius + candidate.Radius;
+
+          double
+            ax = ball.Position.x,
+            ay = ball.Position.y,
+            bx = candidate.Position.x,
+            by = candidate.Position.y,
+            vax = currentVel.x,
+            vay = currentVel.y,
+            vbx = candidate.Velocity.x,
+            vby = candidate.Velocity.y;
+
+          // Yeah, make sense of that
+          double
+            a = vax * vax - 2 * vax * vbx + vbx * vbx + vay * vay - 2 * vay * vby + vby * vby,
+            b = 2 * (ax * vax - bx * vax - ax * vbx + bx * vbx + ay * vay - by * vay - ay * vby + by * vby),
+            c = ax * ax - 2 * ax * bx + bx * bx + ay * ay - 2 * ay * by + by * by - r * r;
+
+          double d = Math.Sqrt(b * b - 4 * a * c);
+
+          tempTime = (-b - d) / (2 * a);
+
+          if (tempTime < 0)
           {
-            currentVel = new BusinessVector(-currentVel.x, -currentVel.y);
-            other.Velocity = new BusinessVector(-other.Velocity.x, -other.Velocity.y);
+            tempTime = (-b + d) / (2 * a);
+          }
 
-            break; 
+          if (tempTime > 0 && tempTime < timeToCollision)
+          {
+            timeToCollision = tempTime;
+
+            collidingBall = candidate;
+
+            var nextPosA = new Position(ball.Position.x + ball.Velocity.x * timeToCollision, ball.Position.y + ball.Velocity.y * timeToCollision);
+            var nextPosB = new Position(candidate.Position.x + candidate.Velocity.x * timeToCollision, candidate.Position.y + candidate.Velocity.y * timeToCollision);
+
+            collisionNormal = new BusinessVector(nextPosA.x - nextPosB.x, nextPosA.y - nextPosB.y).Normalize();
           }
         }
+
+        if (timeToCollision < 1)
+        {
+          return new CollisionEvent((int) Math.Ceiling(timeToCollision * layerBelow.SimulationParameters.frameTime), collisionNormal, collidingBall?.dataBall);
+        }
+        else
+        {
+          return null;
+        }
       }
-
-      return currentVel;
-    }
-
-
-    internal void QueueMovement(BallMovement movement)
-    {
-
     }
 
     #endregion BusinessLogicAbstractAPI

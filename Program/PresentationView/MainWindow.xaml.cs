@@ -23,11 +23,18 @@ namespace TP.ConcurrentProgramming.PresentationView
       InitializeComponent();
       MainWindowViewModel viewModel = (MainWindowViewModel) DataContext;
     }
-        // Workaround because we cannot bind events to a WPF app
-        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+
+    // Workaround because we cannot bind events to a WPF app
+    private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
     {
       if (DataContext is MainWindowViewModel viewModel)
         viewModel.TableSizeChanged(sender, e);
+    }
+
+    private void Window_Closed(object sender, EventArgs e)
+    {
+      if (DataContext is MainWindowViewModel viewModel)
+        viewModel.Dispose();
     }
   }
 }

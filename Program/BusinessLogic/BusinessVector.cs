@@ -51,5 +51,14 @@ namespace TP.ConcurrentProgramming.BusinessLogic
     {
       return new BusinessVector(this.x / scale, this.y / scale);
     }
+    double Length()
+    {
+      return Math.Sqrt(this.x * this.x + this.y * this.y);
+    }
+
+    public IVector Normalize()
+    {
+      return this.Divide((float)Length());
+    }
   }
 }

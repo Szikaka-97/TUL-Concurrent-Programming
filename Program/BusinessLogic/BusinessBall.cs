@@ -28,25 +28,33 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 
     #endregion IBall
 
-    #region private
+    #region internal
 
-    private Data.IBall dataBall;
-
-    public IPosition Position;
-
+    internal Data.IBall dataBall;
+    internal IPosition Position;
     public double Radius => this.dataBall.Diameter / 2;
     public IVector Velocity
     {
       get => this.dataBall.Velocity;
       set => this.dataBall.Velocity = value;
     }
-    
+
+    #endregion internal
+
+    #region private
 
     private void RaisePositionChangeEvent(object? sender, Data.IVector e)
     {
+      BusinessVector delta = new BusinessVector(e.x - Position.x, e.y - Position.y);
+
       Position = new Position(e.x, e.y);
 
-      Velocity = BusinessLogicAbstractAPI.GetBusinessLogicLayer().ComputeCollision(new BallMovement(this));
+      var nextCollision = BusinessLogicAbstractAPI.GetBusinessLogicLayer().ComputeCollision(new BallMovement(this, delta));
+
+      if (nextCollision != null)
+      {
+        dataBall.NotifyCollision(nextCollision);
+      }
 
       NewPositionNotification?.Invoke(this, Position);
     }

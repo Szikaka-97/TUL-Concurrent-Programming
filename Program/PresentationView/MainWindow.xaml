@@ -7,7 +7,7 @@
         xmlns:i = "http://schemas.microsoft.com/expression/2010/interactivity" 
         xmlns:ei = "http://schemas.microsoft.com/expression/2010/interactions" 
         mc:Ignorable="d"
-        Title="Game board" Height="auto" Width="auto" SizeChanged="Window_SizeChanged">
+        Title="Game board" Height="auto" Width="auto" SizeChanged="Window_SizeChanged" Closed="Window_Closed">
   <Window.DataContext>
     <vm:MainWindowViewModel />
   </Window.DataContext>

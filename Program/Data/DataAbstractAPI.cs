@@ -23,11 +23,13 @@ namespace TP.ConcurrentProgramming.Data
 
     #region public API
 
-    public abstract void Start(int numberOfBalls, Action<IVector, IBall> ballCreationHandler, Action<IBall> ballRemovalHandler);
+    public abstract void Start(int numberOfBalls, int frameTime, Action<IVector, IBall> ballCreationHandler, Action<IBall> ballRemovalHandler);
 
     public abstract void EndSimulation();
     public abstract void AddBall();
     public abstract void RemoveBall();
+
+    public abstract SimulationParameters SimulationParameters { get; }
 
     #endregion public API
 
@@ -65,6 +67,26 @@ namespace TP.ConcurrentProgramming.Data
     public static IVector operator -(IVector a, IVector b) => a.Subtract(b);
     public static IVector operator *(IVector vec, float scale) => vec.Multiply(scale);
     public static IVector operator /(IVector vec, float scale) => vec.Divide(scale);
+
+    public static double Dot(IVector a, IVector b)
+    {
+      return a.x * b.x + a.y * b.y;
+    }
+
+    public static IVector Reflect(IVector d, IVector n)
+    {
+      return d - (n * 2 * (float) Dot(d, n));
+    }
+
+    public double Length()
+    {
+      return Math.Sqrt(this.x * this.x + this.y * this.y);
+    }
+
+    public IVector Normalize()
+    {
+      return this.Divide((float)Length());
+    }
   }
 
   public interface IBall
@@ -74,5 +96,11 @@ namespace TP.ConcurrentProgramming.Data
     IVector Velocity { get; set; }
 
     double Diameter { get; init; }
+
+    void NotifyCollision(CollisionEvent collision);
   }
+
+  public record SimulationParameters(int frameTime, float tableSize);
+
+  public record CollisionEvent(int time, IVector normal, IBall? otherBall);
 }

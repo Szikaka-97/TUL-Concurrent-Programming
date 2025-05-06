@@ -10,6 +10,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Threading;
 
 namespace TP.ConcurrentProgramming.Data
 {
@@ -24,7 +25,7 @@ namespace TP.ConcurrentProgramming.Data
 
     #region DataAbstractAPI
 
-    public override void Start(int numberOfBalls, Action<IVector, IBall> ballCreationHandler, Action<IBall> ballRemovalHandler)
+    public override void Start(int numberOfBalls, int frameTime, Action<IVector, IBall> ballCreationHandler, Action<IBall> ballRemovalHandler)
     {
       if (Disposed)
         throw new ObjectDisposedException(nameof(DataImplementation));
@@ -36,11 +37,12 @@ namespace TP.ConcurrentProgramming.Data
       BallCreationHandler = ballCreationHandler;
       BallRemovalHandler = ballRemovalHandler;
 
+      FrameTime = frameTime;
+
       for (int i = 0; i < numberOfBalls; i++)
       {
         AddBall();
       }
-
     }
 
     public override void EndSimulation()
@@ -50,77 +52,109 @@ namespace TP.ConcurrentProgramming.Data
       BallsList.Clear();
     }
 
-        public override void AddBall()
+    public override void AddBall()
+    {
+      if (Disposed)
+        throw new ObjectDisposedException(nameof(DataImplementation));
+
+      Vector startingPosition = new(RandomGenerator.Next(10, TableSize - 10), RandomGenerator.Next(10, TableSize - 10));
+      double bearing = RandomGenerator.NextDouble();
+      Vector vel = new Vector(Math.Sin(bearing), Math.Cos(bearing));
+
+      Ball newBall = new(startingPosition, vel);
+      BallsList.Add(newBall);
+
+      BallCreationHandler(newBall.Position, newBall);
+
+      var cts = new CancellationTokenSource();
+      BallThreads[newBall] = cts;
+
+      new Thread( () =>
+      {
+        int localFrameTime = FrameTime;
+
+        while (!cts.Token.IsCancellationRequested)
         {
-            if (Disposed)
-                throw new ObjectDisposedException(nameof(DataImplementation));
+          float deltaTime = (float) localFrameTime / FrameTime;
 
-            Vector startingPosition = new(RandomGenerator.Next(10, TableSize - 10), RandomGenerator.Next(10, TableSize - 10));
-            double bearing = RandomGenerator.NextDouble();
-            Vector vel = new Vector(Math.Sin(bearing), Math.Cos(bearing));
+          // Handle collision with another ball that might've occured
+          if (newBall.NextCollision != null)
+          {
+            localFrameTime = newBall.NextCollision.time;
+            newBall.Velocity = IVector.Reflect(newBall.Velocity, newBall.NextCollision.normal);
+            
+            newBall.ClearCollision();
+          }
 
-            Ball newBall = new(startingPosition, vel);
-            BallsList.Add(newBall);
+          newBall.Move(deltaTime);
 
-            BallCreationHandler(newBall.Position, newBall);
+          localFrameTime = FrameTime;
 
-            var cts = new CancellationTokenSource();
-            ballTasks[newBall] = cts;
+          if (newBall.NextCollision != null)
+          {
+            localFrameTime = newBall.NextCollision.time;
+            newBall.Velocity = IVector.Reflect(newBall.Velocity, newBall.NextCollision.normal);
 
-            Task.Run(async () =>
+            if (newBall.NextCollision.otherBall != null)
             {
-                while (!cts.Token.IsCancellationRequested)
-                {
-                    newBall.Move(newBall.Velocity);
-                    await Task.Delay(50, cts.Token); // 20 FPS
-                }
-            }, cts.Token);
-        }
+              var otherCollisionEvent = new CollisionEvent(newBall.NextCollision.time, newBall.NextCollision.normal * -1, newBall);
 
-
-        public override void RemoveBall()
-        {
-            if (Disposed)
-                throw new ObjectDisposedException(nameof(DataImplementation));
-            if (BallsList.Count == 0)
-                return;
-
-            Ball removed = BallsList.Last();
-            BallsList.Remove(removed);
-            BallRemovalHandler(removed);
-
-            if (ballTasks.TryGetValue(removed, out var cts))
-            {
-                cts.Cancel();
-                ballTasks.Remove(removed);
+              newBall.NextCollision.otherBall.NotifyCollision(otherCollisionEvent);
             }
+
+            newBall.ClearCollision();
+          }
+
+          Thread.Sleep(localFrameTime);
         }
+      }).Start();
+    }
 
+    public override void RemoveBall()
+    {
+      if (Disposed)
+        throw new ObjectDisposedException(nameof(DataImplementation));
+      if (BallsList.Count == 0)
+        return;
 
-        #endregion DataAbstractAPI
+      Ball removed = BallsList.Last();
+      BallsList.Remove(removed);
+      BallRemovalHandler(removed);
 
-        #region IDisposable
+      if (BallThreads.TryGetValue(removed, out var cts))
+      {
+        cts.Cancel();
+        BallThreads.Remove(removed);
+      }
+    }
 
-        protected virtual void Dispose(bool disposing)
+    public override SimulationParameters SimulationParameters => new SimulationParameters(FrameTime, TableSize);
+
+    #endregion DataAbstractAPI
+
+    #region IDisposable
+
+    protected virtual void Dispose(bool disposing)
+    {
+      if (!Disposed)
+      {
+        if (disposing)
         {
-            if (!Disposed)
-            {
-                if (disposing)
-                {
-                    foreach (var cts in ballTasks.Values)
-                        cts.Cancel();
-                    ballTasks.Clear();
+          foreach (var cts in BallThreads.Values)
+            cts.Cancel();
 
-                    BallsList.Clear();
-                }
-                Disposed = true;
-            }
-            else
-                throw new ObjectDisposedException(nameof(DataImplementation));
+          BallThreads.Clear();
+
+          BallsList.Clear();
         }
+        
+        Disposed = true;
+      }
+      else throw new ObjectDisposedException(nameof(DataImplementation));
+    }
 
 
-        public override void Dispose()
+    public override void Dispose()
     {
       // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
       Dispose(disposing: true);
@@ -139,15 +173,14 @@ namespace TP.ConcurrentProgramming.Data
     private Action<IVector, IBall> BallCreationHandler;
     private Action<IBall> BallRemovalHandler;
     private int TableSize = 100;
-    private readonly Dictionary<Ball, CancellationTokenSource> ballTasks = new();
+    private int FrameTime = 0;
+    private readonly Dictionary<Ball, CancellationTokenSource> BallThreads = new();
+    
+    #endregion private
 
+    #region TestingInfrastructure
 
-
-        #endregion private
-
-        #region TestingInfrastructure
-
-        [Conditional("DEBUG")]
+    [Conditional("DEBUG")]
     internal void CheckBallsList(Action<IEnumerable<IBall>> returnBallsList)
     {
       returnBallsList(BallsList);

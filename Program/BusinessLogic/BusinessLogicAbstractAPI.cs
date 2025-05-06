@@ -31,7 +31,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
     public abstract void Stop();
     public abstract void AddBall();
     public abstract void RemoveBall();
-    internal abstract IVector ComputeCollision(BallMovement movement);
+    internal abstract CollisionEvent? ComputeCollision(BallMovement movement);
 
     #endregion Layer API
 
@@ -84,9 +84,5 @@ namespace TP.ConcurrentProgramming.BusinessLogic
     event EventHandler<IPosition> NewPositionNotification;
   }
 
-  internal class BallMovement(Ball ball)
-  {
-    public Ball movingBall = ball;
-    public IPosition[] state;
-  }
+  internal record BallMovement(Ball ball, IVector delta);
 }
