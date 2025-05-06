@@ -7,6 +7,7 @@
 //  https://github.com/mpostol/TP/discussions/182
 //__________________________________________________________________________________________
 
+using System;
 using System.Windows;
 using TP.ConcurrentProgramming.Presentation.ViewModel;
 
@@ -22,9 +23,8 @@ namespace TP.ConcurrentProgramming.PresentationView
       InitializeComponent();
       MainWindowViewModel viewModel = (MainWindowViewModel) DataContext;
     }
-
-    // Workaround because we cannot bind events to a WPF app
-    private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+        // Workaround because we cannot bind events to a WPF app
+        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
     {
       if (DataContext is MainWindowViewModel viewModel)
         viewModel.TableSizeChanged(sender, e);

@@ -12,6 +12,8 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using UnderneathLayerAPI = TP.ConcurrentProgramming.Data.DataAbstractAPI;
 
+
+
 namespace TP.ConcurrentProgramming.BusinessLogic
 {
   internal class BusinessLogicImplementation : BusinessLogicAbstractAPI
@@ -47,8 +49,28 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 
       ballCreationHandler = upperLayerBallCreationHandler;
 
-      layerBelow.Start(numberOfBalls, (startingPosition, databall) => upperLayerBallCreationHandler(new Position(startingPosition.x, startingPosition.x), new Ball(databall)), databall => upperLayerBallRemovalHandler(new Ball(databall)));
+      layerBelow.Start(numberOfBalls,
+        (startingPosition, databall) =>
+        {
+          Ball newBall = new Ball(databall);
+          lock (ballListLock)
+          {
+            balls.Add(newBall);
+          }
+          upperLayerBallCreationHandler(new Position(startingPosition.x, startingPosition.y), newBall);
+        },
+        databall =>
+        {
+          Ball toRemove;
+          lock (ballListLock)
+          {
+            toRemove = balls.FirstOrDefault(b => b.Equals(databall))!;
+            balls.Remove(toRemove);
+          }
+          upperLayerBallRemovalHandler(toRemove);
+        });
     }
+
     public override void Stop()
     {
       layerBelow.EndSimulation();
@@ -65,7 +87,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
     internal override Data.IVector ComputeCollision(BallMovement movement)
     {
       var ball = movement.movingBall;
-      var currentVel = movement.movingBall.Velocity;
+      var currentVel = ball.Velocity;
 
       if (ball.Position.x + ball.Radius >= 100 || ball.Position.x - ball.Radius <= 0)
       {
@@ -76,8 +98,30 @@ namespace TP.ConcurrentProgramming.BusinessLogic
         currentVel = new BusinessVector(currentVel.x, -currentVel.y);
       }
 
+      lock (ballListLock)
+      {
+        foreach (var other in balls)
+        {
+          if (other == ball) continue;
+
+          double dx = ball.Position.x - other.Position.x;
+          double dy = ball.Position.y - other.Position.y;
+          double dist = Math.Sqrt(dx * dx + dy * dy);
+          double minDist = ball.Radius + other.Radius;
+
+          if (dist < minDist && dist > 0)
+          {
+            currentVel = new BusinessVector(-currentVel.x, -currentVel.y);
+            other.Velocity = new BusinessVector(-other.Velocity.x, -other.Velocity.y);
+
+            break; 
+          }
+        }
+      }
+
       return currentVel;
     }
+
 
     internal void QueueMovement(BallMovement movement)
     {
@@ -95,6 +139,10 @@ namespace TP.ConcurrentProgramming.BusinessLogic
     private Action<IPosition, IBall> ballCreationHandler;
 
     private ConcurrentQueue<BallMovement> queuedMovements;
+
+    private readonly List<Ball> balls = new List<Ball>();
+    private readonly object ballListLock = new object(); 
+
 
     #endregion private
 
