@@ -85,11 +85,11 @@ namespace TP.ConcurrentProgramming.BusinessLogic
       layerBelow.RemoveBall();
     }
 
-    internal override CollisionEvent? ComputeCollision(BallMovement movement)
+    public override CollisionEvent? ComputeCollision(BallMovement movement)
     {
       lock (balls)
       {
-        var ball = movement.ball;
+        var ball = (Ball) movement.ball;
         var currentVel = ball.Velocity;
 
         double timeToCollision = 0;

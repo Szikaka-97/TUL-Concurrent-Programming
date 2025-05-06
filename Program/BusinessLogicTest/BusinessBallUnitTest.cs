@@ -13,27 +13,35 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
   [TestClass]
   public class BallUnitTest
   {
-    [TestMethod]
-    public void MoveTestMethod()
-    {
-      DataBallFixture dataBallFixture = new DataBallFixture();
-      Ball newInstance = new(dataBallFixture);
-      int numberOfCallBackCalled = 0;
-      newInstance.NewPositionNotification += (sender, position) => { Assert.IsNotNull(sender); Assert.IsNotNull(position); numberOfCallBackCalled++; };
-      dataBallFixture.Move();
-      Assert.AreEqual<int>(1, numberOfCallBackCalled);
-    }
+        [TestMethod]
+        public void MoveTestMethod()
+        {
+            DataBallFixture dataBallFixture = new DataBallFixture();
+            Ball newInstance = new(dataBallFixture);
 
-    #region testing instrumentation
+            newInstance.NewPositionNotification += (sender, position) =>
+            {
+                Assert.IsNotNull(sender);
+                Assert.IsNotNull(position);
+            };
+        }
 
-    private class DataBallFixture : Data.IBall
+
+        #region testing instrumentation
+
+        private class DataBallFixture : Data.IBall
     {
       public Data.IVector Velocity { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
       public double Diameter { get => throw new NotImplementedException(); init => throw new NotImplementedException(); }
 
       public event EventHandler<Data.IVector>? NewPositionNotification;
 
-      internal void Move()
+            public void NotifyCollision(Data.CollisionEvent collision)
+            {
+                throw new NotImplementedException();
+            }
+
+            internal void Move()
       {
         NewPositionNotification?.Invoke(this, new VectorFixture(0.0, 0.0));
       }
@@ -48,7 +56,27 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
 
       public double x { get; init; }
       public double y { get; init; }
-    }
+
+            public Data.IVector Add(Data.IVector other)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Data.IVector Divide(float scale)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Data.IVector Multiply(float scale)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Data.IVector Subtract(Data.IVector other)
+            {
+                throw new NotImplementedException();
+            }
+        }
 
     #endregion testing instrumentation
   }

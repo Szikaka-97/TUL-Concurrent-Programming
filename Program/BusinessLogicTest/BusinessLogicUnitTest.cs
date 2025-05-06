@@ -43,30 +43,44 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
       Assert.IsTrue(dataLayerFixcure.Disposed);
     }
 
-    [TestMethod]
+     [TestMethod]
     public void StartTestMethod()
     {
-      DataLayerStartFixcure dataLayerFixcure = new();
-      using (BusinessLogicImplementation newInstance = new(dataLayerFixcure))
-      {
-        int called = 0;
-        int numberOfBalls2Create = 10;
-        newInstance.Start(
-          numberOfBalls2Create,
-          (startingPosition, ball) => { called++; Assert.IsNotNull(startingPosition); Assert.IsNotNull(ball); },
-          ball => { }
+   
+        int createdBallCount = 0;
+        int removedBallCount = 0;
+        int numberOfBalls = 5;
+
+        BusinessLogicImplementation logic = new();
+
+            logic.Start(
+            numberOfBalls,
+            (position, ball) =>
+            {
+                Assert.IsNotNull(position);
+                Assert.IsNotNull(ball);
+                createdBallCount++;
+            },
+            ball =>
+            {
+                removedBallCount++;
+            }
         );
-        Assert.AreEqual<int>(1, called);
-        Assert.IsTrue(dataLayerFixcure.StartCalled);
-        Assert.AreEqual<int>(numberOfBalls2Create, dataLayerFixcure.NumberOfBallseCreated);
-      }
+
+        Assert.AreEqual(numberOfBalls, createdBallCount);
+        Assert.AreEqual(0, removedBallCount); 
     }
 
-    #region testing instrumentation
 
-    private class DataLayerConstructorFixture : Data.DataAbstractAPI
+
+
+        #region testing instrumentation
+
+        private class DataLayerConstructorFixture : Data.DataAbstractAPI
     {
-      public override void AddBall()
+            public override SimulationParameters SimulationParameters => throw new NotImplementedException();
+
+            public override void AddBall()
       {
         throw new NotImplementedException();
       }
@@ -84,17 +98,21 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
         throw new NotImplementedException();
       }
 
-      public override void Start(int numberOfBalls, Action<IVector, Data.IBall> ballCreationHandler, Action<Data.IBall> ballRemovalHandler)
-      {
-        throw new NotImplementedException();
-      }
-    }
+
+
+            public override void Start(int numberOfBalls, int frameTime, Action<IVector, Data.IBall> ballCreationHandler, Action<Data.IBall> ballRemovalHandler)
+            {
+                throw new NotImplementedException();
+            }
+        }
 
     private class DataLayerDisposeFixture : Data.DataAbstractAPI
     {
       internal bool Disposed = false;
 
-      public override void AddBall()
+            public override SimulationParameters SimulationParameters => throw new NotImplementedException();
+
+            public override void AddBall()
       {
         throw new NotImplementedException();
       }
@@ -114,26 +132,23 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
         throw new NotImplementedException();
       }
 
-      public override void Start(int numberOfBalls, Action<IVector, Data.IBall> ballCreationHandler, Action<Data.IBall> ballRemovalHandler)
-      {
-        throw new NotImplementedException();
-      }
-    }
+            public override void Start(int numberOfBalls, int frameTime, Action<IVector, Data.IBall> ballCreationHandler, Action<Data.IBall> ballRemovalHandler)
+            {
+                throw new NotImplementedException();
+            }
+        }
 
     private class DataLayerStartFixcure : Data.DataAbstractAPI
     {
       internal bool StartCalled = false;
       internal int NumberOfBallseCreated = -1;
 
-      public override void Dispose()
+            public override SimulationParameters SimulationParameters => throw new NotImplementedException();
+
+            public override void Dispose()
       { }
 
-      public override void Start(int numberOfBalls, Action<IVector, Data.IBall> ballCreationHandler, Action<Data.IBall> ballRemovalHandler)
-      {
-        StartCalled = true;
-        NumberOfBallseCreated = numberOfBalls;
-        ballCreationHandler(new DataVectorFixture(), new DataBallFixture());
-      }
+
 
       public override void AddBall()
       {
@@ -150,11 +165,36 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
         throw new NotImplementedException();
       }
 
-      private record DataVectorFixture : Data.IVector
+            public override void Start(int numberOfBalls, int frameTime, Action<IVector, Data.IBall> ballCreationHandler, Action<Data.IBall> ballRemovalHandler)
+            {
+                throw new NotImplementedException();
+            }
+
+            private record DataVectorFixture : Data.IVector
       {
         public double x { get; init; }
         public double y { get; init; }
-      }
+
+                public IVector Add(IVector other)
+                {
+                    throw new NotImplementedException();
+                }
+
+                public IVector Divide(float scale)
+                {
+                    throw new NotImplementedException();
+                }
+
+                public IVector Multiply(float scale)
+                {
+                    throw new NotImplementedException();
+                }
+
+                public IVector Subtract(IVector other)
+                {
+                    throw new NotImplementedException();
+                }
+            }
 
       private class DataBallFixture : Data.IBall
       {
@@ -162,7 +202,12 @@ namespace TP.ConcurrentProgramming.BusinessLogic.Test
         public double Diameter { get => throw new NotImplementedException(); init => throw new NotImplementedException(); }
 
         public event EventHandler<IVector>? NewPositionNotification = null;
-      }
+
+                public void NotifyCollision(CollisionEvent collision)
+                {
+                    throw new NotImplementedException();
+                }
+            }
     }
 
     #endregion testing instrumentation

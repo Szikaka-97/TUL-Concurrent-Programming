@@ -198,6 +198,11 @@ namespace TP.ConcurrentProgramming.Data
       returnInstanceDisposed(Disposed);
     }
 
-    #endregion TestingInfrastructure
-  }
+        internal void Start(int v, Action<object, object> value1, Action<IVector> value2)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion TestingInfrastructure
+    }
 }

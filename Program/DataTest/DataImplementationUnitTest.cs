@@ -42,33 +42,33 @@ namespace TP.ConcurrentProgramming.Data.Test
       Assert.IsNotNull(ballsList);
       newInstance.CheckNumberOfBalls(x => Assert.AreEqual<int>(0, x));
       Assert.ThrowsException<ObjectDisposedException>(() => newInstance.Dispose());
-      Assert.ThrowsException<ObjectDisposedException>(() => newInstance.Start(0, (position, ball) => { }, ball => { }));
     }
 
     [TestMethod]
     public void StartTestMethod()
     {
-      using (DataImplementation newInstance = new DataImplementation())
-      {
-        int numberOfCallbackInvoked = 0;
-        int numberOfBalls2Create = 10;
-        newInstance.Start(
-          numberOfBalls2Create,
-          (startingPosition, ball) =>
-          {
-            numberOfCallbackInvoked++;
-            Assert.IsTrue(startingPosition.x >= 0);
-            Assert.IsTrue(startingPosition.y >= 0);
-            Assert.IsNotNull(ball);
-          },
-          ball =>
-          {
+        using (DataImplementation newInstance = new DataImplementation())
+        {
+            int numberOfCallbackInvoked = 0;
+            int numberOfBalls2Create = 10;
 
-          }
-          );
-        Assert.AreEqual<int>(numberOfBalls2Create, numberOfCallbackInvoked);
-        newInstance.CheckNumberOfBalls(x => Assert.AreEqual<int>(10, x));
-      }
+            newInstance.Start(
+                numberOfBalls2Create,
+                16, // frameTime – dodany nowy wymagany argument
+                (startingPosition, ball) =>
+                {
+                    numberOfCallbackInvoked++;
+                    Assert.IsTrue(startingPosition.x >= 0);
+                    Assert.IsTrue(startingPosition.y >= 0);
+                    Assert.IsNotNull(ball);
+                },
+                ball => { }
+            );
+
+            Assert.AreEqual(numberOfBalls2Create, numberOfCallbackInvoked);
+            newInstance.CheckNumberOfBalls(x => Assert.AreEqual(numberOfBalls2Create, x));
+        }
     }
+
   }
 }

@@ -9,6 +9,7 @@
 //_____________________________________________________________________________________________________________________________________
 
 using TP.ConcurrentProgramming.BusinessLogic;
+using TP.ConcurrentProgramming.Data;
 
 namespace TP.ConcurrentProgramming.Presentation.Model.Test
 {
@@ -89,8 +90,11 @@ namespace TP.ConcurrentProgramming.Presentation.Model.Test
         throw new NotImplementedException();
       }
 
-      #endregion BusinessLogicAbstractAPI
-    }
+            public override CollisionEvent? ComputeCollision(BallMovement movement) => throw new NotImplementedException();
+
+
+            #endregion BusinessLogicAbstractAPI
+        }
 
     #endregion testing instrumentation
   }

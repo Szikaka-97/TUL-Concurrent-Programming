@@ -12,26 +12,26 @@ using TP.ConcurrentProgramming.BusinessLogic;
 
 namespace TP.ConcurrentProgramming.BusinessLogic.Test
 {
-  [TestClass]
-  public class BusinessLogicAbstractAPIUnitTest
-  {
-    [TestMethod]
-    public void BusinessLogicConstructorTestMethod()
+    [TestClass]
+    public class BusinessLogicAbstractAPIUnitTest
     {
-      BusinessLogicAbstractAPI instance1 = BusinessLogicAbstractAPI.GetBusinessLogicLayer();
-      BusinessLogicAbstractAPI instance2 = BusinessLogicAbstractAPI.GetBusinessLogicLayer();
-      Assert.AreSame(instance1, instance2);
-      instance1.Dispose();
-      Assert.ThrowsException<ObjectDisposedException>(() => instance2.Dispose());
-    }
+        [TestMethod]
+        public void BusinessLogicConstructorTestMethod()
+        {
+            BusinessLogicAbstractAPI instance1 = BusinessLogicAbstractAPI.GetBusinessLogicLayer();
+            BusinessLogicAbstractAPI instance2 = BusinessLogicAbstractAPI.GetBusinessLogicLayer();
+            Assert.AreSame(instance1, instance2);
+            instance1.Dispose();
+            Assert.ThrowsException<ObjectDisposedException>(() => instance2.Dispose());
+        }
 
-    [TestMethod]
-    public void GetDimensionsTestMethod()
-    {
-        Dimensions dim = BusinessLogicAbstractAPI.GetDimensions;
-        Assert.AreEqual(10.0, dim.BallDimension);
-        Assert.AreEqual(10.0, dim.TableHeight);
-        Assert.AreEqual(10.0, dim.TableWidth);  
+
+        [TestMethod]
+        public void GetDimensionsTestMethod()
+        {
+            Dimensions dim = BusinessLogicAbstractAPI.Dimensions;
+            Assert.AreEqual(10.0, dim.BallDimension);
+            Assert.AreEqual(100.0, dim.TableSize); 
+        }
     }
-  }
 }

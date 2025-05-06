@@ -31,7 +31,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
     public abstract void Stop();
     public abstract void AddBall();
     public abstract void RemoveBall();
-    internal abstract CollisionEvent? ComputeCollision(BallMovement movement);
+    public abstract CollisionEvent? ComputeCollision(BallMovement movement);
 
     #endregion Layer API
 
@@ -45,8 +45,10 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 
     private static Lazy<BusinessLogicAbstractAPI> modelInstance = new Lazy<BusinessLogicAbstractAPI>(() => new BusinessLogicImplementation());
 
-    #endregion private
-  }
+        public static Dimensions GetDimensions { get; internal set; }
+
+        #endregion private
+    }
   /// <summary>
   /// Immutable type representing table dimensions
   /// </summary>
@@ -59,7 +61,9 @@ namespace TP.ConcurrentProgramming.BusinessLogic
   {
     public abstract double BallDimension { get; }
     public abstract double TableSize { get; }
-  }
+        public double TableHeight { get; internal set; }
+        public double TableWidth { get; internal set; }
+    }
 
   internal class DefaultDimensions : Dimensions
   {
@@ -84,5 +88,5 @@ namespace TP.ConcurrentProgramming.BusinessLogic
     event EventHandler<IPosition> NewPositionNotification;
   }
 
-  internal record BallMovement(Ball ball, IVector delta);
+  public record BallMovement(IBall ball, IVector delta);
 }
