@@ -49,14 +49,14 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 
       Position = new Position(e.x, e.y);
 
-      var nextCollision = BusinessLogicAbstractAPI.GetBusinessLogicLayer().ComputeCollision(new BallMovement(this, delta));
-
-      if (nextCollision != null)
-      {
-        dataBall.NotifyCollision(nextCollision);
-      }
+      BusinessLogicAbstractAPI.GetBusinessLogicLayer().ApplyCollision(new BallMovement(this, delta));
 
       NewPositionNotification?.Invoke(this, Position);
+    }
+
+    internal void Reflect(IVector normal)
+    {
+      this.dataBall.Velocity = IVector.Reflect(this.dataBall.Velocity, normal);
     }
 
     #endregion private

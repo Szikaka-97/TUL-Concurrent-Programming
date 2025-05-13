@@ -40,10 +40,6 @@ namespace TP.ConcurrentProgramming.Data
       get => DiameterBackingField / 2;
       init => DiameterBackingField = value * 2;
     }
-    public void NotifyCollision(CollisionEvent collision)
-    {
-      NextCollision = collision;
-    }
 
     #endregion IBall
 
@@ -54,22 +50,11 @@ namespace TP.ConcurrentProgramming.Data
       get => PositionBackingField;
     }
 
-    internal CollisionEvent? NextCollision
-    {
-      get;
-      private set;
-    }
-
     internal void Move(float deltaTime)
     {
       PositionBackingField = PositionBackingField + this.Velocity * deltaTime;
 
       RaiseNewPositionChangeNotification();
-    }
-
-    internal void ClearCollision()
-    {
-      NextCollision = null;
     }
 
     #endregion internal

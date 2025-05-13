@@ -85,7 +85,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
       layerBelow.RemoveBall();
     }
 
-    public override CollisionEvent? ComputeCollision(BallMovement movement)
+    public override void ApplyCollision(BallMovement movement)
     {
       lock (balls)
       {
@@ -158,11 +158,8 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 
         if (timeToCollision < 1)
         {
-          return new CollisionEvent((int) Math.Ceiling(timeToCollision * layerBelow.SimulationParameters.frameTime), collisionNormal, collidingBall?.dataBall);
-        }
-        else
-        {
-          return null;
+          ball.Reflect(collisionNormal);
+          collidingBall?.Reflect(collisionNormal);
         }
       }
     }

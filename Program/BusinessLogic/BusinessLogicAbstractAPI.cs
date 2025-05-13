@@ -31,7 +31,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
     public abstract void Stop();
     public abstract void AddBall();
     public abstract void RemoveBall();
-    public abstract CollisionEvent? ComputeCollision(BallMovement movement);
+    public abstract void ApplyCollision(BallMovement movement);
 
     #endregion Layer API
 

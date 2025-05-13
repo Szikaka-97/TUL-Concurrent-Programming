@@ -90,7 +90,7 @@ namespace TP.ConcurrentProgramming.Presentation.Model.Test
         throw new NotImplementedException();
       }
 
-            public override CollisionEvent? ComputeCollision(BallMovement movement) => throw new NotImplementedException();
+            public override void ApplyCollision(BallMovement movement) => throw new NotImplementedException();
 
 
             #endregion BusinessLogicAbstractAPI

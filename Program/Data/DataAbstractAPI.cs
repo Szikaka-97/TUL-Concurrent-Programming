@@ -96,8 +96,6 @@ namespace TP.ConcurrentProgramming.Data
     IVector Velocity { get; set; }
 
     double Diameter { get; init; }
-
-    void NotifyCollision(CollisionEvent collision);
   }
 
   public record SimulationParameters(int frameTime, float tableSize);

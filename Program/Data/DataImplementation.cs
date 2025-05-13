@@ -71,41 +71,11 @@ namespace TP.ConcurrentProgramming.Data
 
       new Thread( () =>
       {
-        int localFrameTime = FrameTime;
-
         while (!cts.Token.IsCancellationRequested)
         {
-          float deltaTime = (float) localFrameTime / FrameTime;
+          newBall.Move(1);
 
-          // Handle collision with another ball that might've occured
-          if (newBall.NextCollision != null)
-          {
-            localFrameTime = newBall.NextCollision.time;
-            newBall.Velocity = IVector.Reflect(newBall.Velocity, newBall.NextCollision.normal);
-            
-            newBall.ClearCollision();
-          }
-
-          newBall.Move(deltaTime);
-
-          localFrameTime = FrameTime;
-
-          if (newBall.NextCollision != null)
-          {
-            localFrameTime = newBall.NextCollision.time;
-            newBall.Velocity = IVector.Reflect(newBall.Velocity, newBall.NextCollision.normal);
-
-            if (newBall.NextCollision.otherBall != null)
-            {
-              var otherCollisionEvent = new CollisionEvent(newBall.NextCollision.time, newBall.NextCollision.normal * -1, newBall);
-
-              newBall.NextCollision.otherBall.NotifyCollision(otherCollisionEvent);
-            }
-
-            newBall.ClearCollision();
-          }
-
-          Thread.Sleep(localFrameTime);
+          Thread.Sleep(FrameTime);
         }
       }).Start();
     }
