@@ -34,7 +34,10 @@ namespace TP.ConcurrentProgramming.PresentationView
     private void Window_Closed(object sender, EventArgs e)
     {
       if (DataContext is MainWindowViewModel viewModel)
+      {
+        viewModel.Stop();
         viewModel.Dispose();
+      }
     }
   }
 }

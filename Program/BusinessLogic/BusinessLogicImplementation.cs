@@ -50,7 +50,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
 
       ballCreationHandler = upperLayerBallCreationHandler;
 
-      layerBelow.Start(numberOfBalls, 20,
+      layerBelow.Start(numberOfBalls, (int) frameTime,
         (startingPosition, databall) =>
         {
           Ball newBall = new Ball(databall);
@@ -156,7 +156,7 @@ namespace TP.ConcurrentProgramming.BusinessLogic
           }
         }
 
-        if (timeToCollision < 1)
+        if (timeToCollision < frameTime / 1000)
         {
           ball.Reflect(collisionNormal);
           collidingBall?.Reflect(collisionNormal);
@@ -177,7 +177,8 @@ namespace TP.ConcurrentProgramming.BusinessLogic
     private ConcurrentQueue<BallMovement> queuedMovements;
 
     private readonly List<Ball> balls = new List<Ball>();
-    private readonly object ballListLock = new object(); 
+    private readonly object ballListLock = new object();
+    private readonly float frameTime = 20;
 
 
     #endregion private

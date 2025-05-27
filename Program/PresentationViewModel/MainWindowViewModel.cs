@@ -78,6 +78,8 @@ namespace TP.ConcurrentProgramming.Presentation.ViewModel
     {
       if (Disposed)
         throw new ObjectDisposedException(nameof(MainWindowViewModel));
+
+      ModelLayer.Stop();
     }
 
     public void ExecuteAddBall(object? param)

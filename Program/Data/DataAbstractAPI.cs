@@ -48,6 +48,8 @@ namespace TP.ConcurrentProgramming.Data
 
   public interface IVector
   {
+    static IVector Zero { get; } = new Vector(0, 0);
+
     /// <summary>
     /// The X component of the vector.
     /// </summary>

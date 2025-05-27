@@ -6,13 +6,11 @@ using System.Threading.Tasks;
 
 namespace TP.ConcurrentProgramming.Data
 {
-    class BallLogins
+    record BallLogData
     {
         public int BallId { get; set; }
-        public double X { get; set; }
-        public double Y { get; set; }
-        public double Vx { get; set; }
-        public double Vy { get; set; }
+        public IVector Position { get; set; } = IVector.Zero;
+        public IVector Velocity { get; set; } = IVector.Zero;
         public DateTime Timestamp { get; set; }
     }
 }

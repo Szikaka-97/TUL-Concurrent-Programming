@@ -21,55 +21,52 @@ namespace TP.ConcurrentProgramming.Data
     #region ctor
 
     public DataImplementation()
-    { 
-       
+    {
+
     }
     public void StartOfLogging(string file = "Ball_stats.csv")
-        {
-            Console.WriteLine($"[DEBUG] Log file path: {Path.GetFullPath(_logPath)}");
-            _logPath = file;
-            _loggerRunning = true;
-            _loggerTread = new Thread(LogWorker);
-            _loggerTread.Start();
-        }
+    {
+      Console.WriteLine($"[DEBUG] Log file path: {Path.GetFullPath(_logPath)}");
+      _logPath = file;
+      _loggerRunning = true;
+      _loggerTread = new Thread(LogWorker);
+      _loggerTread.Start();
+    }
     public void StopOfLogging()
-        {
-            _loggerRunning = false;
-            _loggerTread.Join();
-        }
-    public void LogBallState(int ballId, double x, double y, double vx, double vy)
-        {
-            _logQueue.Enqueue(new BallLogins
-            {
-                BallId = ballId,
-                X = x,
-                Y = y,
-                Vx = vx,
-                Vy = vy,
-                Timestamp = DateTime.Now
-            });
-        }
+    {
+      _loggerRunning = false;
+      _loggerTread.Join();
+    }
+    public void LogBallState(int ballId, Ball ball)
+    {
+      _logQueue.Enqueue(new BallLogData
+      {
+        BallId = ballId,
+        Position = ball.Position,
+        Velocity = ball.Velocity,
+        Timestamp = DateTime.Now
+      });
+    }
     public void LogWorker()
+    {
+      using (var writer = new StreamWriter(_logPath))
+      {
+        while (_logQueue.TryDequeue(out var logData))
         {
-            using (var writer = new StreamWriter(_logPath))
-            {
-                writer.WriteLine("BallId,X,Y,Vx,Vy,Timestamp");
-                while(_loggerRunning || !_logQueue.IsEmpty)
-                {
-                    while(_logQueue.TryDequeue(out var text))
-                    {
-                        writer.WriteLine($"{text.BallId},{text.X},{text.Y},{text.Vx},{text.Vy},{text.Timestamp:O}");
-                    }    
-                    Thread.Sleep(70); 
-                }
-            }
+          writer.WriteLine($"{logData.BallId},{logData.Position.x},{logData.Position.y},{logData.Velocity.x},{logData.Velocity.y},{logData.Timestamp:O}");
         }
-  #endregion ctor
 
-  #region DataAbstractAPI
+        if (!_loggerRunning)
+          return;
+        Thread.Sleep(70);
+      }
+    }
+    #endregion ctor
+
+    #region DataAbstractAPI
 
 
-  public override void Start(int numberOfBalls, int frameTime, Action<IVector, IBall> ballCreationHandler, Action<IBall> ballRemovalHandler)
+    public override void Start(int numberOfBalls, int frameTime, Action<IVector, IBall> ballCreationHandler, Action<IBall> ballRemovalHandler)
     {
       if (Disposed)
         throw new ObjectDisposedException(nameof(DataImplementation));
@@ -106,7 +103,7 @@ namespace TP.ConcurrentProgramming.Data
 
       Vector startingPosition = new(RandomGenerator.Next(10, TableSize - 10), RandomGenerator.Next(10, TableSize - 10));
       double bearing = RandomGenerator.NextDouble();
-      Vector vel = new Vector(Math.Sin(bearing), Math.Cos(bearing));
+      Vector vel = new Vector(Math.Sin(bearing) * 10, Math.Cos(bearing) * 10);
 
       Ball newBall = new(startingPosition, vel);
       BallsList.Add(newBall);
@@ -116,20 +113,18 @@ namespace TP.ConcurrentProgramming.Data
       var cts = new CancellationTokenSource();
       BallThreads[newBall] = cts;
 
-      new Thread( () =>
+      new Thread(() =>
       {
         while (!cts.Token.IsCancellationRequested)
         {
-          newBall.Move(1);
+          newBall.Move((float) FrameTime / 1000);
 
-        LogBallState(
-            newBall.Id,
-            newBall.Position.x,
-            newBall.Position.y,
-            newBall.Velocity.x,
-            newBall.Velocity.y
-        );
-        Thread.Sleep(FrameTime);
+          LogBallState(
+              BallsList.Count,
+              newBall
+          );
+
+          Thread.Sleep(FrameTime);
         }
       }).Start();
     }
@@ -171,7 +166,7 @@ namespace TP.ConcurrentProgramming.Data
 
           BallsList.Clear();
         }
-        
+
         Disposed = true;
       }
       else throw new ObjectDisposedException(nameof(DataImplementation));
@@ -199,15 +194,15 @@ namespace TP.ConcurrentProgramming.Data
     private int TableSize = 100;
     private int FrameTime = 0;
     private readonly Dictionary<Ball, CancellationTokenSource> BallThreads = new();
-    private readonly ConcurrentQueue<BallLogins> _logQueue = new();
+    private readonly ConcurrentQueue<BallLogData> _logQueue = new();
     private Thread _loggerTread;
     private bool _loggerRunning;
     private string _logPath = "Ball_stats.csv";
     #endregion private
 
-        #region TestingInfrastructure
+    #region TestingInfrastructure
 
-        [Conditional("DEBUG")]
+    [Conditional("DEBUG")]
     internal void CheckBallsList(Action<IEnumerable<IBall>> returnBallsList)
     {
       returnBallsList(BallsList);
@@ -225,11 +220,11 @@ namespace TP.ConcurrentProgramming.Data
       returnInstanceDisposed(Disposed);
     }
 
-        internal void Start(int v, Action<object, object> value1, Action<IVector> value2)
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion TestingInfrastructure
+    internal void Start(int v, Action<object, object> value1, Action<IVector> value2)
+    {
+      throw new NotImplementedException();
     }
+
+    #endregion TestingInfrastructure
+  }
 }
