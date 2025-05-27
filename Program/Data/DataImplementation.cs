@@ -35,7 +35,10 @@ namespace TP.ConcurrentProgramming.Data
     public void StopOfLogging()
     {
       _loggerRunning = false;
-      _loggerTread.Join();
+      if (_loggerTread != null)
+      { 
+        _loggerTread.Join();
+      }
     }
     public void LogBallState(int ballId, Ball ball)
     {
@@ -51,14 +54,18 @@ namespace TP.ConcurrentProgramming.Data
     {
       using (var writer = new StreamWriter(_logPath))
       {
-        while (_logQueue.TryDequeue(out var logData))
+        while (true)
         {
-          writer.WriteLine($"{logData.BallId},{logData.Position.x},{logData.Position.y},{logData.Velocity.x},{logData.Velocity.y},{logData.Timestamp:O}");
-        }
+          while (_logQueue.TryDequeue(out var logData))
+          {
+            writer.WriteLine($"{logData.BallId},{logData.Position.x},{logData.Position.y},{logData.Velocity.x},{logData.Velocity.y},{logData.Timestamp:O}");
+          }
 
-        if (!_loggerRunning)
-          return;
-        Thread.Sleep(70);
+          if (!_loggerRunning)
+            return;
+
+          Thread.Sleep(70);
+        }
       }
     }
     #endregion ctor
@@ -113,6 +120,8 @@ namespace TP.ConcurrentProgramming.Data
       var cts = new CancellationTokenSource();
       BallThreads[newBall] = cts;
 
+      int ballID = BallsList.Count;
+
       new Thread(() =>
       {
         while (!cts.Token.IsCancellationRequested)
@@ -120,7 +129,7 @@ namespace TP.ConcurrentProgramming.Data
           newBall.Move((float) FrameTime / 1000);
 
           LogBallState(
-              BallsList.Count,
+              ballID,
               newBall
           );
 
