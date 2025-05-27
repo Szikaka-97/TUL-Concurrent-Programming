@@ -9,6 +9,8 @@
 //_____________________________________________________________________________________________________________________________________
 
 using System;
+using System.Collections.Concurrent;
+using System.IO;
 using System.Diagnostics;
 using System.Threading;
 
@@ -19,13 +21,55 @@ namespace TP.ConcurrentProgramming.Data
     #region ctor
 
     public DataImplementation()
-    { }
+    { 
+       
+    }
+    public void StartOfLogging(string file = "Ball_stats.csv")
+        {
+            Console.WriteLine($"[DEBUG] Log file path: {Path.GetFullPath(_logPath)}");
+            _logPath = file;
+            _loggerRunning = true;
+            _loggerTread = new Thread(LogWorker);
+            _loggerTread.Start();
+        }
+    public void StopOfLogging()
+        {
+            _loggerRunning = false;
+            _loggerTread.Join();
+        }
+    public void LogBallState(int ballId, double x, double y, double vx, double vy)
+        {
+            _logQueue.Enqueue(new BallLogins
+            {
+                BallId = ballId,
+                X = x,
+                Y = y,
+                Vx = vx,
+                Vy = vy,
+                Timestamp = DateTime.Now
+            });
+        }
+    public void LogWorker()
+        {
+            using (var writer = new StreamWriter(_logPath))
+            {
+                writer.WriteLine("BallId,X,Y,Vx,Vy,Timestamp");
+                while(_loggerRunning || !_logQueue.IsEmpty)
+                {
+                    while(_logQueue.TryDequeue(out var text))
+                    {
+                        writer.WriteLine($"{text.BallId},{text.X},{text.Y},{text.Vx},{text.Vy},{text.Timestamp:O}");
+                    }    
+                    Thread.Sleep(70); 
+                }
+            }
+        }
+  #endregion ctor
 
-    #endregion ctor
+  #region DataAbstractAPI
 
-    #region DataAbstractAPI
 
-    public override void Start(int numberOfBalls, int frameTime, Action<IVector, IBall> ballCreationHandler, Action<IBall> ballRemovalHandler)
+  public override void Start(int numberOfBalls, int frameTime, Action<IVector, IBall> ballCreationHandler, Action<IBall> ballRemovalHandler)
     {
       if (Disposed)
         throw new ObjectDisposedException(nameof(DataImplementation));
@@ -34,6 +78,7 @@ namespace TP.ConcurrentProgramming.Data
       if (ballRemovalHandler == null)
         throw new ArgumentNullException(nameof(ballRemovalHandler));
 
+      StartOfLogging();
       BallCreationHandler = ballCreationHandler;
       BallRemovalHandler = ballRemovalHandler;
 
@@ -50,6 +95,8 @@ namespace TP.ConcurrentProgramming.Data
       if (Disposed)
         throw new ObjectDisposedException(nameof(DataImplementation));
       BallsList.Clear();
+
+      StopOfLogging();
     }
 
     public override void AddBall()
@@ -75,7 +122,14 @@ namespace TP.ConcurrentProgramming.Data
         {
           newBall.Move(1);
 
-          Thread.Sleep(FrameTime);
+        LogBallState(
+            newBall.Id,
+            newBall.Position.x,
+            newBall.Position.y,
+            newBall.Velocity.x,
+            newBall.Velocity.y
+        );
+        Thread.Sleep(FrameTime);
         }
       }).Start();
     }
@@ -145,12 +199,15 @@ namespace TP.ConcurrentProgramming.Data
     private int TableSize = 100;
     private int FrameTime = 0;
     private readonly Dictionary<Ball, CancellationTokenSource> BallThreads = new();
-    
+    private readonly ConcurrentQueue<BallLogins> _logQueue = new();
+    private Thread _loggerTread;
+    private bool _loggerRunning;
+    private string _logPath = "Ball_stats.csv";
     #endregion private
 
-    #region TestingInfrastructure
+        #region TestingInfrastructure
 
-    [Conditional("DEBUG")]
+        [Conditional("DEBUG")]
     internal void CheckBallsList(Action<IEnumerable<IBall>> returnBallsList)
     {
       returnBallsList(BallsList);
